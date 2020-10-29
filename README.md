@@ -773,7 +773,7 @@ This library provides several examples.
    for the Adafruit [Feather M0 LoRa](https://www.adafruit.com/product/3178), and for a variety
    of other MCCI products.
 
-- [`raw-halconfig.ino](examples/raw-halconfig/raw-halconfig.ino) is like the other `raw` examples, but is most general. It's configured according to the LMIC's auto-configuration mechanism, and adapts according to the selected region.
+- [`raw-halconfig.ino`](examples/raw-halconfig/raw-halconfig.ino) is like the other `raw` examples, but is most general. It's configured according to the LMIC's auto-configuration mechanism, and adapts according to the selected region.
 
 - [`ttn-abp.ino`](examples/ttn-abp/ttn-abp.ino) shows a basic transmission of a "Hello, world!" message
    using the LoRaWAN protocol. This example
