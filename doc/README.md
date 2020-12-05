@@ -13,7 +13,7 @@ This directory contains documentation on the use and implementation of the LMIC.
 ## Implementation documentation
 
 - [`RadioDriver.md`](./RadioDriver.md): documentation of the radio driver interface.
-- [`LMIC-structure.pdf`](./LMIC-structure.pdf): a structural diagram of the LMIC. This is somewhat UML like.
+- [`LMIC-structure-diagram.pdf`](./LMIC-structure-diagram.pdf): a structural diagram of the LMIC. This is somewhat UML like.
 - [`LMIC-FSM.pdf`](./LMIC-FSM.pdf): the operating logic of the LMIC, modeled as a finite state machine. As of version 3.2, this model is idealized; the actual implementation is not an explicit state machine. However, if you search for `os_setCallback()` and `os_setTimedCallback()`, you will see the links between event callbacks, and that will generally correspond to the implementation.  The FSM diagram doesn't show class-B or class-C operation as yet.
 
 ## Historical information
