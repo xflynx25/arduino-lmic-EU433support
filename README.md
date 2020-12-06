@@ -5,17 +5,21 @@ modified to run in the Arduino environment, allowing using the SX1272,
 SX1276 transceivers and compatible modules (such as some HopeRF RFM9x
 modules and the Murata LoRa modules).
 
-This library mostly exposes the functions defined by LMIC, it makes no
+Information about the LoRaWAN protocol is summarized in [LoRaWAN-at-a-glance](doc/LoRaWAN-at-a-glance.pdf). Full information is available from the [LoRa Alliance](https://lora-alliance.org).
+
+A support forum is available at [forum.mcci.io](https://forum.mcci.io/c/device-software/arduino-lmic/5).
+
+The base Arduino library mostly exposes the functions defined by LMIC. It makes no
 attempt to wrap them in a higher level API that is more in the Arduino
 style. To find out how to use the library itself, see the examples, or
-see the PDF file in the doc subdirectory.
+see the PDF files in the doc subdirectory.
 
-The [MCCI `arduino-lorawan`](https://github.com/mcci-catena/arduino-lorawan) library provides a higher level, more Arduino-like wrapper which may be useful.
+A separate library, [MCCI `arduino-lorawan`](https://github.com/mcci-catena/arduino-lorawan), provides a higher level, more Arduino-like wrapper which may be useful.
 
 This library requires Arduino IDE version 1.6.6 or above, since it
 requires C99 mode to be enabled by default.
 
-[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v3.2.0...master) [![Build Status](https://travis-ci.com/mcci-catena/arduino-lmic.svg?branch=master)](https://travis-ci.com/mcci-catena/arduino-lmic)
+[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v3.3.0...master) [![Build Status](https://travis-ci.com/mcci-catena/arduino-lmic.svg?branch=master)](https://travis-ci.com/mcci-catena/arduino-lmic)
 
 **Contents:**
 
@@ -33,6 +37,9 @@ requires C99 mode to be enabled by default.
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Installing](#installing)
+- [Getting Help](#getting-help)
+	- [If it's not working](#if-its-not-working)
+	- [If you've found a bug](#if-youve-found-a-bug)
 - [Features](#features)
 - [Additional Documentation](#additional-documentation)
 	- [PDF/Word Documentation](#pdfword-documentation)
@@ -119,6 +126,16 @@ To install this library:
 - clone this git repository into your sketchbook/libraries folder.
 
 For more info, see [https://www.arduino.cc/en/Guide/Libraries](https://www.arduino.cc/en/Guide/Libraries).
+
+## Getting Help
+
+### If it's not working
+
+Ask questions at [`forum.mcci.io`](https://forum.mcci.io/c/device-software/arduino-lmic/5). Wireless is tricky, so don't be afraid to ask. The LMIC has been used successfully in a lot of applications, but it's common to have problems getting it working. To keep the code size down, there are not a lot of debugging features, and the features are not always easy to use.
+
+### If you've found a bug
+
+Raise a GitHub issue at [`github.com/mcci-catena/arduino-lmic`](https://github.com/mcci-catena/arduino-lmic/issues/).
 
 ## Features
 
@@ -1219,6 +1236,12 @@ function uflt12f(rawUflt12)
 ```
 
 ## Release History
+
+- v3.3.0 is primarily a maintenance and roll-up release.
+
+   - Added [LoRaWAN-at-a-glance](doc/LoRaWAN-at-a-glance.pdf) and a [state diagram of the LMIC](doc/LMIC-FSM.pdf).
+   - Several PRs from Matthijs Kooijman to improve compatibility with the original Arduino LMIC ([#608](https://github.com/mcci-catena/arduino-lmic/issue/608), [#609](https://github.com/mcci-catena/arduino-lmic/issue/609)).
+   - Numerous documentation improvements contributed by the community ([#431](https://github.com/mcci-catena/arduino-lmic/issue/), [#612](https://github.com/mcci-catena/arduino-lmic/issue/612), [#614](https://github.com/mcci-catena/arduino-lmic/issue/614), [#625](https://github.com/mcci-catena/arduino-lmic/issue/625)).
 
 - v3.2.0 has the following changes:
 
