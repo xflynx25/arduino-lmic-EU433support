@@ -1,0 +1,45 @@
+##############################################################################
+#
+# File: ci-arduinocli.yml
+#
+# Function:
+#   YAML file specifying how to do continuous integration for Arduino-LMIC
+#   (using arduino-cli)
+#
+##############################################################################
+
+# the name that appears in the GitHub UI.
+name: Arduino CI
+
+# specify the events that trigger runs.
+on:
+  # pull requests (default settings)
+  pull_request:
+  # pushes (default settings)
+  push:
+  # repository operations
+  repository_dispatch:
+  schedule:
+    # do a build once a week at 06:07Z Sunday
+    - cron: '7 6 * * 0'
+  
+# what to do:
+jobs:
+
+  # define a job named "arduinocli"
+  arduinocli:
+    # select a target OS
+    runs-on:  ubuntu-latest
+  
+    # step-by-step
+    steps:
+      # check out this repo as {root}/arduino-lmic
+      - uses: actions/checkout@v2
+        name: Check out the repo
+      - uses: actions/checkout@v2
+        name: Set up mcci-catena-ci
+        with:
+          repository: mcci-catena/mcci-catena-ci
+          path: mcci-catena-ci
+
+### end of file ###
