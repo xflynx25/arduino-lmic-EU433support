@@ -41,5 +41,7 @@ jobs:
         with:
           repository: mcci-catena/mcci-catena-ci
           path: mcci-catena-ci
+      - name: Display structure of checkout
+        run: tree -d
 
 ### end of file ###
