@@ -36,12 +36,14 @@ jobs:
       # check out this repo as {root}/arduino-lmic
       - uses: actions/checkout@v2
         name: Check out the repo
+        with:
+          path: arduino-lmic
       - uses: actions/checkout@v2
         name: Set up mcci-catena-ci
         with:
           repository: mcci-catena/mcci-catena-ci
           path: mcci-catena-ci
       - name: Display structure of checkout
-        run: tree -d
+        run: tree -d $(realpath .)
 
 ### end of file ###
