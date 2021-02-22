@@ -55,7 +55,7 @@ jobs:
           path: mcci-catena-ci
 
       - name: set up
-        run: bash mcci-catena-ci/setup.sh -l libraries/${{ env.MCCI_CI_LIBRARY }} -a ${{ matrix.arch }}
+        run: bash mcci-catena-ci/setup.sh -D -l libraries/${{ env.MCCI_CI_LIBRARY }} -a ${{ matrix.arch }}
 
       - name: Display structure of checkout
         run: tree -d $(realpath .)
