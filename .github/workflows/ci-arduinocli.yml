@@ -8,7 +8,7 @@
 #
 ##############################################################################
 
-# the name that appears in the GitHub UI.
+# the name that appears in the GitHub UI, the badge, etc
 name: Arduino CI
 
 # global environment
