@@ -28,15 +28,16 @@ jobs:
   env:
     MCCI_CI_LIBRARY:  libraries/arduino-lmic
   
-  strategy:
-    matrix:
-      arch: samd stm32 esp32 avr
-
   # define a job named "arduinocli"
   arduinocli:
     # select a target OS
     runs-on:  ubuntu-latest
-  
+    name: ${{env.MCCI_CI_LIBRARY}} ${{matrix.arch}}
+
+    strategy:
+      matrix:
+        arch: samd stm32 esp32 avr
+
     # step-by-step
     steps:
       # check out this repo as {root}/arduino-lmic
