@@ -56,6 +56,24 @@ jobs:
           repository: mcci-catena/mcci-catena-ci
           path: mcci-catena-ci
 
+      - name: "Get library: Adafruit_Sensor"
+        uses: actions/checkout@v2
+        with:
+          repository: adafruit/Adafruit_Sensor
+          path: libraries/Adafruit_Sensor
+
+      - name: "Get library: DHT-sensor-library"
+        uses: actions/checkout@v2
+        with:
+          repository: adafruit/DHT-sensor-library
+          path: libraries/DHT-sensor-library
+
+      - name: "Get library: Time"
+        uses: actions/checkout@v2
+        with:
+          repository: PaulStoffregen/Time
+          path: libraries/Time
+
       - name: Set up to build
         run: bash mcci-catena-ci/setup.sh -l libraries/${{ env.MCCI_CI_LIBRARY }} -a ${{ matrix.arch }}
 
