@@ -52,5 +52,4 @@ function _lmic_filter {
 		_error "_lmic_filter: unknown command:" "$@"
 		;;
 	esac
-	return 1
 }
