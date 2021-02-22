@@ -25,6 +25,12 @@ on:
   
 # what to do:
 jobs:
+  env:
+    MCCI_CI_LIBRARY:  libraries/arduino-lmic
+  
+  strategy:
+    matrix:
+      arch: samd stm32 esp32 avr
 
   # define a job named "arduinocli"
   arduinocli:
@@ -36,12 +42,22 @@ jobs:
       # check out this repo as {root}/arduino-lmic
       - uses: actions/checkout@v2
         name: Check out the repo
+        with:
+          repository: ${{env.MCCI_CI_LIBRARY}}
+
       - uses: actions/checkout@v2
         name: Set up mcci-catena-ci
         with:
           repository: mcci-catena/mcci-catena-ci
           path: mcci-catena-ci
+
+      - name: set up
+        run: bash mcci-catena-ci/setup.sh -l ${{env.MCCI_CI_LIBRARY}} --arch ${{matrix.arch}}
+
       - name: Display structure of checkout
         run: tree -d $(realpath .)
+
+#      - name: compile
+#        run: bash mcci-catena-ci/arduino-regress-wrap.sh ${{env.MCCI_CI_LIBRARY}}
 
 ### end of file ###
