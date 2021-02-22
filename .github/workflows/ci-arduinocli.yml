@@ -32,10 +32,6 @@ jobs:
   
   # define a job named "arduinocli"
   arduinocli:
-    # set job env
-    env:
-      MCCI_CI_LIBRARY_PATH: libraries/${{ env.MCCI_CI_LIBRARY }}
-
     # select a target OS
     runs-on:  ubuntu-latest
     name: ${{ env.MCCI_CI_LIBRARY }} ${{ matrix.arch }}
@@ -50,7 +46,7 @@ jobs:
       - uses: actions/checkout@v2
         name: Check out the repo
         with:
-          path: ${{ env.MCCI_CI_LIBRARY_PATH }}
+          path: libraries/${{ env.MCCI_CI_LIBRARY }}
 
       - uses: actions/checkout@v2
         name: Set up mcci-catena-ci
@@ -59,7 +55,7 @@ jobs:
           path: mcci-catena-ci
 
       - name: set up
-        run: bash mcci-catena-ci/setup.sh -l ${MCCI_CI_LIBRARY_PATH} --arch ${{ matrix.arch }}
+        run: bash mcci-catena-ci/setup.sh -l libraries/${MCCI_CI_LIBRARY} --arch ${{ matrix.arch }}
 
       - name: Display structure of checkout
         run: tree -d $(realpath .)
