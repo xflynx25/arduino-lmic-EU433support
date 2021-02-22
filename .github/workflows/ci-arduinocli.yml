@@ -38,8 +38,7 @@ jobs:
 
     strategy:
       matrix:
-        # arch: [samd, stm32, esp32, avr]
-        arch: [esp32]
+        arch: [samd, stm32, esp32, avr]
 
     # step-by-step
     steps:
