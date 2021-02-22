@@ -1240,7 +1240,7 @@ function uflt12f(rawUflt12)
 
 - HEAD has the following changes.
 
-  - Re-added CI testing, since Travis CI no longer works for us [#647](https://github.com/mcci-catena/arduino-lmic/issues/647).
+  - Re-added CI testing, since Travis CI no longer works for us [#647](https://github.com/mcci-catena/arduino-lmic/issues/647); fixed AVR compliance CI compile [#679](https://github.com/mcci-catena/arduino-lmic/issues/679).
 
 - v3.3.0 is primarily a maintenance and roll-up release.
 
