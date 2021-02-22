@@ -39,9 +39,10 @@ function _lmic_filter {
 		fi
 		;;
 	"projcfg")
-		declare -r LMIC_FILTER_SKETCH="$(basename "$1")"
+		declare -r LMIC_FILTER_SKETCH="$1"
+		_debug _lmic_filter: LMIC_FILTER_SKETCH="$LMIC_FILTER_SKETCH"
 		shift
-		if [[ "$MCCI_CI_ARCH" = "avr" && "$LMIC_FILTER_SKETCH" = "compliance-otaa-halconfig.ino" ]]; then
+		if [[ "$MCCI_CI_ARCH" = "avr" && "$(basename "$LMIC_FILTER_SKETCH")" = "compliance-otaa-halconfig.ino" ]]; then
 			_projcfg_class_a "$@"
 		else
 			_projcfg "$@"
