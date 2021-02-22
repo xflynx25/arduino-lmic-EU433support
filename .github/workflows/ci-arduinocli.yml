@@ -14,7 +14,6 @@ name: Arduino CI
 # global environment
 env:
   MCCI_CI_LIBRARY:  arduino-lmic
-  MCCI_CI_LIBRARY_PATH: libraries/${{ env.MCCI_CI_LIBRARY }}
 
 # specify the events that trigger runs.
 on:
@@ -33,6 +32,10 @@ jobs:
   
   # define a job named "arduinocli"
   arduinocli:
+    # set job env
+    env:
+      MCCI_CI_LIBRARY_PATH: libraries/${{ env.MCCI_CI_LIBRARY }}
+
     # select a target OS
     runs-on:  ubuntu-latest
     name: ${{ env.MCCI_CI_LIBRARY }} ${{ matrix.arch }}
