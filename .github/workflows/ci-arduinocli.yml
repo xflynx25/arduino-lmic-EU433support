@@ -38,7 +38,8 @@ jobs:
 
     strategy:
       matrix:
-        arch: [samd, stm32, esp32, avr]
+        # arch: [samd, stm32, esp32, avr]
+        arch: avr
 
     # step-by-step
     steps:
@@ -54,13 +55,13 @@ jobs:
           repository: mcci-catena/mcci-catena-ci
           path: mcci-catena-ci
 
-      - name: set up
-        run: bash mcci-catena-ci/setup.sh -D -l libraries/${{ env.MCCI_CI_LIBRARY }} -a ${{ matrix.arch }}
+      - name: Set up to build
+        run: bash mcci-catena-ci/setup.sh -l libraries/${{ env.MCCI_CI_LIBRARY }} -a ${{ matrix.arch }}
 
       - name: Display structure of checkout
         run: tree -d $(realpath .)
 
-#      - name: compile
-#        run: bash mcci-catena-ci/arduino-regress-wrap.sh ${{env.MCCI_CI_LIBRARY}}
+      - name: Compile examples
+        run: bash mcci-catena-ci/arduino-regress-wrap.sh -l libraries/${{env.MCCI_CI_LIBRARY}} -a ${{ matrix.arch }}
 
 ### end of file ###
