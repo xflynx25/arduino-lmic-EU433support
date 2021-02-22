@@ -21,6 +21,6 @@
 
 #### use the common code.
 # shellcheck source=../../../../ci/lmic-filter-common.sh
-source "$(dirname "$0")"/../../../../ci/lmic-filter-common.sh
+source "$(dirname "$MCCI_CI_FILTER_NAME")"/../../../../ci/lmic-filter-common.sh
 
 #### end of file ####
