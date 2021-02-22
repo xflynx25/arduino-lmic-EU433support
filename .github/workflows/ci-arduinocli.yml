@@ -37,8 +37,10 @@ jobs:
     name: ${{ matrix.arch }}
 
     strategy:
+      fail-fast: false
       matrix:
         arch: [samd, stm32, esp32, avr]
+        # get info about all the configs.
 
     # step-by-step
     steps:
