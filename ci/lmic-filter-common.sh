@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Module: common-init.sh
+# Module: lmic-filter-common.sh
 #
 # Function:
 #	This script must be sourced; it sets variables used by other
