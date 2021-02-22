@@ -32,16 +32,16 @@ function _lmic_filter {
 		return 0
 		;;
 	"use-progcfg")
-		if [[ "$MCCI_CI_ARCH" = "avr" && "$1" = "compliance-otaa-halconfig" ]]; then
+		if [[ "$MCCI_CI_ARCH" = "avr" && "$(basename "$1")" = "compliance-otaa-halconfig.ino" ]]; then
 			echo 0
 		else
 			echo 1
 		fi
 		;;
 	"projcfg")
-		declare -r LMIC_FILTER_SKETCH="$1"
+		declare -r LMIC_FILTER_SKETCH="$(basename "$1")"
 		shift
-		if [[ "$MCCI_CI_ARCH" = "avr" && "$LMIC_FILTER_SKETCH" = "compliance-otaa-halconfig" ]]; then
+		if [[ "$MCCI_CI_ARCH" = "avr" && "$LMIC_FILTER_SKETCH" = "compliance-otaa-halconfig.ino" ]]; then
 			_projcfg_class_a "$@"
 		else
 			_projcfg "$@"
