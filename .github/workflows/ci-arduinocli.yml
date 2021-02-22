@@ -34,7 +34,7 @@ jobs:
   arduinocli:
     # select a target OS
     runs-on:  ubuntu-latest
-    name: ${{ env.MCCI_CI_LIBRARY }} ${{ matrix.arch }}
+    name: ${{ matrix.arch }}
 
     strategy:
       matrix:
