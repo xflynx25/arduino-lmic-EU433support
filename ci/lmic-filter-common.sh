@@ -27,22 +27,37 @@ function _lmic_filter {
 	declare -r CMD="$1"
 	shift
 	case "$CMD" in
-	# return 0 (success) if should skip this sketch.
+
+	# return 0 (success) if should process this sketch.
 	"process")
-		return 0
+		case "$MCCI_CI_ARCH:$(basename "$1")" in
+			# we need to skip this sketch until the SAMD
+			# bsp is updated; the Time library uses prog_read_ptr()
+			# which is broken in v2.3.0
+			"samd:ttn-otaa-network-time.ino")
+				return 1
+				;;
+			*)
+				return 0
+				;;
+		esac
 		;;
-	"use-progcfg")
-		if [[ "$MCCI_CI_ARCH" = "avr" && "$(basename "$1")" = "compliance-otaa-halconfig.ino" ]]; then
-			echo 0
-		else
+
+	# print 1 if must use projcfg; 0 if not forced.
+	"use-projcfg")
+		if [[ "$MCCI_CI_ARCH" = "avr" ]]; then
 			echo 1
+		else
+			echo 0
 		fi
 		;;
+
+	# call the suitable flavor of _projcfg.
 	"projcfg")
 		declare -r LMIC_FILTER_SKETCH="$1"
 		_debug _lmic_filter: LMIC_FILTER_SKETCH="$LMIC_FILTER_SKETCH"
 		shift
-		if [[ "$MCCI_CI_ARCH" = "avr" && "$(basename "$LMIC_FILTER_SKETCH")" = "compliance-otaa-halconfig.ino" ]]; then
+		if [[ "$MCCI_CI_ARCH" = "avr" ]]; then
 			_projcfg_class_a "$@"
 		else
 			_projcfg "$@"
