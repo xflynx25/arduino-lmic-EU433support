@@ -37,6 +37,11 @@ function _lmic_filter {
 			"samd:ttn-otaa-network-time.ino")
 				return 1
 				;;
+			# some of the feather sketches fail on non-Feathers
+			"esp32:raw-feather.ino" | \
+			"esp32:ttn-otaa-feather-us915.ino")
+				return 1
+				;;
 			*)
 				return 0
 				;;
