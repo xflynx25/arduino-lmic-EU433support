@@ -42,6 +42,11 @@ function _lmic_filter {
 			"esp32:ttn-otaa-feather-us915.ino")
 				return 1
 				;;
+			# some of the feather sketches fail on non-Feathers
+			"stm32:raw-feather.ino" | \
+			"stm32:ttn-otaa-feather-us915.ino")
+				return 1
+				;;
 			*)
 				return 0
 				;;
