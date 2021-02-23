@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Module: compliance-otaa-halconfig/extra/ci/lmic-filter.sh
+# Module: ttn-otaa-feather-us915/extra/ci/lmic-filter.sh
 #
 # Function:
 #	This script must be sourced; it sets variables used by other
