@@ -831,7 +831,7 @@ This library provides several examples.
 
 - [`compliance-otaa-halconfig.ino`](examples/compliance-otaa-halconfig/compliance-otaa-halconfig.ino) is a test sketch that is used for LoRaWAN compliance testing.
 
-- [`helium-us9115.ino`](examples\helium-us915\helium-us915.ino) is a complete example for using the LMIC on the Helium network. It's very similar to the OTAA examples, but sets up the prejoin parameters properly for the initial deployment of Helium LoRaWAN support.
+- [`helium-otaa.ino`](examples\helium-otaa\helium-otaa.ino) is a complete example for using the LMIC on the Helium network. It's very similar to the OTAA examples, but sets up the prejoin parameters properly for the initial deployment of Helium LoRaWAN support.
 
 - [`ttn-otaa-network-time.ino`](examples/ttn-otaa-network-time/ttn-otaa-network-time.ino) demonstrates use of the network time request. Network time requests are not supported by The Things Network as of the time of writing.
 
