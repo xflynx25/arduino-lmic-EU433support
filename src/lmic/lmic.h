@@ -172,10 +172,8 @@ struct lmic_saved_adr_state_s {
 
 #elif CFG_LMIC_US_like  // US915 spectrum =================================================
 
-enum { MAX_XCHANNELS = 2 };      // extra channels in RAM, channels 0-71 are immutable
-
 struct lmic_saved_adr_state_s {
-    u2_t        channelMap[(72+MAX_XCHANNELS+15)/16];  // enabled bits
+    u2_t        channelMap[(72+15)/16];  // enabled bits
     u2_t        activeChannels125khz;
     u2_t        activeChannels500khz;
 };
@@ -532,9 +530,7 @@ struct lmic_t {
     u2_t        channelDrMap[MAX_CHANNELS];
     u2_t        channelMap;
 #elif CFG_LMIC_US_like
-    u4_t        xchFreq[MAX_XCHANNELS];    // extra channel frequencies (if device is behind a repeater)
-    u2_t        xchDrMap[MAX_XCHANNELS];   // extra channel datarate ranges  ---XXX: ditto
-    u2_t        channelMap[(72+MAX_XCHANNELS+15)/16];  // enabled bits
+    u2_t        channelMap[(72+15)/16];  // enabled bits
     u2_t        activeChannels125khz;
     u2_t        activeChannels500khz;
 #endif

@@ -100,20 +100,17 @@ u4_t LMICus915_convFreq(xref2cu1_t ptr) {
 }
 
 bit_t LMIC_setupChannel(u1_t chidx, u4_t freq, u2_t drmap, s1_t band) {
+        LMIC_API_PARAMETER(chidx);
+        LMIC_API_PARAMETER(freq);
+        LMIC_API_PARAMETER(drmap);
         LMIC_API_PARAMETER(band);
 
-        if (chidx < 72 || chidx >= 72 + MAX_XCHANNELS)
-                return 0; // channels 0..71 are hardwired
-        LMIC.xchFreq[chidx - 72] = freq;
-        // TODO(tmm@mcci.com): don't use US SF directly, use something from the LMIC context or a static const
-        LMIC.xchDrMap[chidx - 72] = drmap == 0 ? DR_RANGE_MAP(US915_DR_SF10, US915_DR_SF8C) : drmap;
-        LMIC.channelMap[chidx >> 4] |= (1 << (chidx & 0xF));
-        return 1;
+        return 0; // channels 0..71 are hardwired
 }
 
 bit_t LMIC_disableChannel(u1_t channel) {
         bit_t result = 0;
-        if (channel < 72 + MAX_XCHANNELS) {
+        if (channel < 72) {
                 if (ENABLED_CHANNEL(channel)) {
                         result = 1;
                         if (IS_CHANNEL_125khz(channel))
@@ -128,7 +125,7 @@ bit_t LMIC_disableChannel(u1_t channel) {
 
 bit_t LMIC_enableChannel(u1_t channel) {
         bit_t result = 0;
-        if (channel < 72 + MAX_XCHANNELS) {
+        if (channel < 72) {
                 if (!ENABLED_CHANNEL(channel)) {
                         result = 1;
                         if (IS_CHANNEL_125khz(channel))
@@ -197,13 +194,7 @@ void LMICus915_updateTx(ostime_t txbeg) {
         } else {
                 // at 500kHz bandwidth, we're allowed more power.
                 LMIC.txpow = 26;
-                if (chnl < 64 + 8) {
-                        LMIC.freq = US915_500kHz_UPFBASE + (chnl - 64)*US915_500kHz_UPFSTEP;
-                }
-                else {
-                        ASSERT(chnl < 64 + 8 + MAX_XCHANNELS);
-                        LMIC.freq = LMIC.xchFreq[chnl - 72];
-                }
+                LMIC.freq = US915_500kHz_UPFBASE + (chnl - 64)*US915_500kHz_UPFSTEP;
         }
 
         // Update global duty cycle stats
