@@ -161,7 +161,7 @@ struct band_t {
     u2_t     txcap;     // duty cycle limitation: 1/txcap
     s1_t     txpow;     // maximum TX power
     u1_t     lastchnl;  // last used channel
-    ostime_t avail;     // channel is blocked until this time
+    ostime_t avail;     // band is blocked until this time
 };
 TYPEDEF_xref2band_t; //!< \internal
 
@@ -529,8 +529,10 @@ struct lmic_t {
     // bit map of enabled datarates for each channel
     u2_t        channelDrMap[MAX_CHANNELS];
     u2_t        channelMap;
+    u2_t        channelShuffleMap;
 #elif CFG_LMIC_US_like
     u2_t        channelMap[(72+15)/16];  // enabled bits
+    u2_t        channelShuffleMap[(72+15)/16];  // enabled bits
     u2_t        activeChannels125khz;
     u2_t        activeChannels500khz;
 #endif
@@ -565,7 +567,10 @@ struct lmic_t {
 
     u1_t        txChnl;          // channel for next TX
     u1_t        globalDutyRate;  // max rate: 1/2^k
-
+#if CFG_LMIC_US_like
+    u1_t        txChnl_125kHz;  ///< during joins on 500 kHz, the 125 kHz channel
+                                ///  that was last used.
+#endif
     u1_t        upRepeat;     // configured up repeat
     s1_t        adrTxPow;     // ADR adjusted TX power
     u1_t        datarate;     // current data rate
@@ -700,6 +705,8 @@ int LMIC_getNetworkTimeReference(lmic_time_reference_t *pReference);
 
 int LMIC_registerRxMessageCb(lmic_rxmessage_cb_t *pRxMessageCb, void *pUserData);
 int LMIC_registerEventCb(lmic_event_cb_t *pEventCb, void *pUserData);
+
+int LMIC_findNextChannel(uint16_t *, const uint16_t *, uint16_t, int);
 
 // APIs for client half of compliance.
 typedef u1_t lmic_compliance_rx_action_t;
