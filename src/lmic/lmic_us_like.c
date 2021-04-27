@@ -51,11 +51,11 @@ static void setNextChannel(uint16_t start, uint16_t end, uint16_t count) {
         ASSERT(count>0);
         ASSERT(start<end);
         ASSERT(count <= (end - start));
-        ASSERT(start & 0xF == 0);
+        ASSERT((start & 0xF) == 0);
         uint16_t const mapStart = start >> 4;
         uint16_t const mapEntries = (end - start + 15) >> 4;
 
-        int candidate = LMIC_findNextChannel(
+        int candidate = start + LMIC_findNextChannel(
                                 LMIC.channelShuffleMap + mapStart,
                                 LMIC.channelMap + mapStart,
                                 mapEntries,
