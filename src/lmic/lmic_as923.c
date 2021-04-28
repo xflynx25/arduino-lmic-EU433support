@@ -335,36 +335,84 @@ void LMICas923_setRx1Params(void) {
 ///
 ostime_t LMICas923_nextTx(ostime_t now) {
         ostime_t mintime = now + /*8h*/sec2osticks(28800);
-        u1_t band = 0;
-        uint16_t availmask;
+        u2_t availMap;
+        u2_t feasibleMap;
+        u1_t bandMap;
 
-        // set mintime to the earliest time.
-        for (u1_t bi = 0; bi<4; bi++) {
-                if (mintime - LMIC.bands[bi].avail > 0)
-                        mintime = LMIC.bands[bi].avail;
-        }
-
-        // scan all the enabled channels and make a mask of candidates
-        availmask = 0;
+        // set mintime to the earliest time of all enabled channels
+        // (can't just look at bands); and for a given channel, we
+        // can't tell if we're ready till we've checked all possible
+        // avail times.
+        bandMap = 0;
         for (u1_t chnl = 0; chnl < MAX_CHANNELS; ++chnl) {
+                u2_t chnlBit = 1 << chnl;
+
+                // none at any higher numbers?
+                if (LMIC.channelMap < chnlBit)
+                        break;
+
                 // not enabled?
-                if ((LMIC.channelMap & (1 << chnl)) == 0)
+                if ((LMIC.channelMap & chnlBit) == 0)
                         continue;
+
                 // not feasible?
                 if ((LMIC.channelDrMap[chnl] & (1 << (LMIC.datarate & 0xF))) == 0)
                         continue;
-                // not available yet?
+
                 u1_t const band = LMIC.channelFreq[chnl] & 0x3;
-                if (LMIC.bands[band].avail > mintime)
+                u1_t const thisBandBit = 1 << band;
+                // already considered?
+                if ((bandMap & thisBandBit) != 0)
                         continue;
-                availmask |= 1 << chnl;
+
+                // consider this band.
+                bandMap |= thisBandBit;
+
+                // enabled, not considered, feasible: adjust the min time.
+                if ((s4_t)(mintime - LMIC.bands[band].avail) > 0)
+                        mintime = LMIC.bands[band].avail;
         }
 
-        // now: calculate the mask
-        int candidateCh = LMIC_findNextChannel(
-                                &LMIC.channelShuffleMap, &availmask, 1, LMIC.txChnl == 0xFF ? -1 : 0);
+        // make a mask of candidates available for use
+        availMap = 0;
+        for (u1_t chnl = 0; chnl < MAX_CHANNELS; ++chnl) {
+                u2_t chnlBit = 1 << chnl;
+
+                // none at any higher numbers?
+                if (LMIC.channelMap < chnlBit)
+                        break;
+
+               // not enabled?
+                if ((LMIC.channelMap & chnlBit) == 0)
+                        continue;
+
+                // not feasible?
+                if ((LMIC.channelDrMap[chnl] & (1 << (LMIC.datarate & 0xF))) == 0)
+                        continue;
+
+                // not available yet?
+                feasibleMap |= chnlBit;
+
+                u1_t const band = LMIC.channelFreq[chnl] & 0x3;
+                if ((s4_t)(LMIC.bands[band].avail - mintime) > 0)
+                        continue;
+
+                // ok: this is a candidate.
+                availMap |= chnlBit;
+        }
+
+        // find the next available chennel.
+        u2_t saveShuffleMap = LMIC.channelShuffleMap;
+        int candidateCh = LMIC_findNextChannel(&LMIC.channelShuffleMap, &availMap, 1, LMIC.txChnl == 0xFF ? -1 : LMIC.txChnl);
+
+        // restore bits in the shuffleMap that were on, but might have reset
+        // if availMap was used to refresh shuffleMap. These are channels that
+        // are feasble but not yet candidates due to band saturation
+        LMIC.channelShuffleMap |= saveShuffleMap & feasibleMap & ~availMap;
+
         if (candidateCh >= 0) {
-                // update the channel.
+                // update the channel; otherwise we'll just use the
+                // most recent one.
                 LMIC.txChnl = candidateCh;
         }
         return mintime;
