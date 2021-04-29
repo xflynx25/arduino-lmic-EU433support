@@ -99,6 +99,22 @@ u4_t LMICus915_convFreq(xref2cu1_t ptr) {
         return freq;
 }
 
+///
+/// \brief query number of default channels.
+///
+///     For US, we have no programmable channels; all channels
+///     are fixed. Return the total channel count.
+///
+u1_t LMIC_queryNumDefaultChannels() {
+        return 64 + 8;
+}
+
+///
+/// \brief LMIC_setupChannel for US915
+///
+/// \note there are no progammable channels for US915, so this API
+///     always returns FALSE.
+///
 bit_t LMIC_setupChannel(u1_t chidx, u4_t freq, u2_t drmap, s1_t band) {
         LMIC_API_PARAMETER(chidx);
         LMIC_API_PARAMETER(freq);

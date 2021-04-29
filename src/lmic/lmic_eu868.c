@@ -140,17 +140,28 @@ static CONST_TABLE(u4_t, bandAssignments)[] = {
   865000000 /* .. 868400000 */    | BAND_CENTI,
 };
 
+///
+/// \brief query number of default channels.
+///
+u1_t LMIC_queryNumDefaultChannels() {
+        return NUM_DEFAULT_CHANNELS;
+}
+
+///
+/// \brief LMIC_setupChannel for EU 868
+///
+/// \note according to LoRaWAN 1.0.3 section 5.6, "the acceptable range
+///     for **ChIndex** is N to 16", where N is our \c NUM_DEFAULT_CHANNELS.
+///     This routine is used internally for MAC commands, so we enforce
+///     this for the extenal API as well.
+///
 bit_t LMIC_setupChannel(u1_t chidx, u4_t freq, u2_t drmap, s1_t band) {
         // zero the band bits in freq, just in case.
         freq &= ~3;
 
         if (chidx < NUM_DEFAULT_CHANNELS) {
-                // can't disable a default channel.
-                if (freq == 0)
-                        return 0;
-                // can't change a default channel.
-                else if (freq != (LMIC.channelFreq[chidx] & ~3))
-                        return 0;
+                // can't do anything to a default channel.
+                return 0;
         }
         bit_t fEnable = (freq != 0);
         if (chidx >= MAX_CHANNELS)

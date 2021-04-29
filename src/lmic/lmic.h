@@ -660,6 +660,9 @@ bit_t LMIC_enableChannel(u1_t channel);
 bit_t LMIC_disableSubBand(u1_t band);
 bit_t LMIC_selectSubBand(u1_t band);
 
+//! \brief get the number of (fixed) default channels before the progammable channels.
+u1_t  LMIC_queryNumDefaultChannels(void);
+
 void  LMIC_setDrTxpow   (dr_t dr, s1_t txpow);  // set default/start DR/txpow
 void  LMIC_setAdrMode   (bit_t enabled);        // set ADR mode (if mobile turn off)
 
