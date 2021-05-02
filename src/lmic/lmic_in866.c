@@ -1,6 +1,6 @@
 /*
 * Copyright (c) 2014-2016 IBM Corporation.
-* Copyright (c) 2017, 2019 MCCI Corporation.
+* Copyright (c) 2017, 2019-2021 MCCI Corporation.
 * All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,14 @@ CONST_TABLE(u1_t, _DR2RPS_CRC)[] = {
         (u1_t)MAKERPS(FSK,  BW125, CR_4_5, 0, 0),       // [7]
         ILLEGAL_RPS
 };
+
+bit_t
+LMICin866_validDR(dr_t dr) {
+        // use subtract here to avoid overflow
+        if (dr >= LENOF_TABLE(_DR2RPS_CRC) - 2)
+                return 0;
+        return TABLE_GET_U1(_DR2RPS_CRC, dr+1)!=ILLEGAL_RPS;
+}
 
 static CONST_TABLE(u1_t, maxFrameLens)[] = {
         59+5, 59+5, 59+5, 123+5, 250+5, 250+5, 0, 250+5
