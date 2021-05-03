@@ -120,10 +120,35 @@ extern "C"{
 #define	ARDUINO_LMIC_VERSION_GET_LOCAL(v)	\
 	((v) & 0xFFu)
 
+/// \brief convert a semantic version to an ordinal integer.
+#define ARDUINO_LMIC_VERSION_TO_ORDINAL(v)  \
+        (((v) & 0xFFFFFF00u) | (((v) - 1) & 0xFFu))
+
+/// \brief compare two semantic versions
+/// \return \c true if \p a is less than \p b (as a semantic version).
+#define ARDUINO_LMIC_VERSION_COMPARE_LT(a, b)   \
+        (ARDUINO_LMIC_VERSION_TO_ORDINAL(a) < ARDUINO_LMIC_VERSION_TO_ORDINAL(b))
+
+/// \brief compare two semantic versions
+/// \return \c true if \p a is less than or equal to \p b (as a semantic version).
+#define ARDUINO_LMIC_VERSION_COMPARE_LE(a, b)   \
+        (ARDUINO_LMIC_VERSION_TO_ORDINAL(a) <= ARDUINO_LMIC_VERSION_TO_ORDINAL(b))
+
+/// \brief compare two semantic versions
+/// \return \c true if \p a is greater than \p b (as a semantic version).
+#define ARDUINO_LMIC_VERSION_COMPARE_GT(a, b)   \
+        (ARDUINO_LMIC_VERSION_TO_ORDINAL(a) > ARDUINO_LMIC_VERSION_TO_ORDINAL(b))
+
+/// \brief compare two semantic versions
+/// \return \c true if \p a is greater than or equal to \p b (as a semantic version).
+#define ARDUINO_LMIC_VERSION_COMPARE_GE(a, b)   \
+        (ARDUINO_LMIC_VERSION_TO_ORDINAL(a) >= ARDUINO_LMIC_VERSION_TO_ORDINAL(b))
+
+
 //! Only For Antenna Tuning Tests !
 //#define CFG_TxContinuousMode 1
 
-// since this was annouunced as the API variable, we keep it. But it's not used,
+// since this was announced as the API variable, we keep it. But it's not used,
 // MAX_LEN_FRAME is what the code uses.
 enum { MAX_FRAME_LEN      =  MAX_LEN_FRAME };   //!< Library cap on max frame length
 
@@ -132,10 +157,10 @@ enum { MAX_MISSED_BCNS    =  (2 * 60 * 60 + 127) / 128 };   //!< threshold for d
                                      // note that we need 100 ppm timing accuracy for
                                      // this, to keep the timing error to +/- 700ms.
 enum { MAX_RXSYMS         = 350 };   // Stop tracking beacon if sync error grows beyond this. A 0.4% clock error
-                                     // at SF9.125k means 512 ms; one sybol is 4.096 ms,
+                                     // at SF9.125k means 512 ms; one symbol is 4.096 ms,
                                      // so this needs to be at least 125 for an STM32L0.
                                      // And for 100ppm clocks and 2 hours of beacon misses,
-                                     // this needs to accomodate 1.4 seconds of error at
+                                     // this needs to accommodate 1.4 seconds of error at
                                      // 4.096 ms/sym or at least 342 symbols.
 
 enum { LINK_CHECK_CONT    =  0  ,    // continue with this after reported dead link
