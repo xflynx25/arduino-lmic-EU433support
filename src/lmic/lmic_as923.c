@@ -411,9 +411,10 @@ ostime_t LMICas923_nextTx(ostime_t now) {
                 if ((LMIC.channelDrMap[chnl] & (1 << (LMIC.datarate & 0xF))) == 0)
                         continue;
 
-                // not available yet?
+                // This channel is feasible. But might not be available.
                 feasibleMap |= chnlBit;
 
+                // not available yet?
                 u1_t const band = LMIC.channelFreq[chnl] & 0x3;
                 if ((s4_t)(LMIC.bands[band].avail - mintime) > 0)
                         continue;
