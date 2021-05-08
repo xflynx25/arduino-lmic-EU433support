@@ -285,6 +285,7 @@ ostime_t LMICeu868_nextTx(ostime_t now) {
 
         // make a mask of candidates available for use
         availMap = 0;
+        feasibleMap = 0;
         for (u1_t chnl = 0; chnl < MAX_CHANNELS; ++chnl) {
                 u2_t chnlBit = 1 << chnl;
 
