@@ -1621,21 +1621,9 @@ static bit_t processJoinAccept (void) {
     // initDefaultChannels(0) for EU-like, nothing otherwise
     LMICbandplan_joinAcceptChannelClear();
 
-    if (!LMICbandplan_hasJoinCFlist() && dlen > LEN_JA) {
-            // if no JoinCFList, we're supposed to continue
-            // the join per 2.2.5 of LoRaWAN regional 2.2.4
-            // https://github.com/mcci-catena/arduino-lmic/issues/19
-    } else if ( LMICbandplan_hasJoinCFlist() && dlen > LEN_JA ) {
-        dlen = OFF_CFLIST;
-        for( u1_t chidx=3; chidx<8; chidx++, dlen+=3 ) {
-            u4_t freq = LMICbandplan_convFreq(&LMIC.frame[dlen]);
-            if( freq ) {
-                LMIC_setupChannel(chidx, freq, 0, -1);
-#if LMIC_DEBUG_LEVEL > 1
-                LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": Setup channel, idx=%d, freq=%"PRIu32"\n", os_getTime(), chidx, freq);
-#endif
-            }
-        }
+    // process the CFList if present
+    if (dlen == LEN_JAEXT) {
+        LMICbandplan_processJoinAcceptCFList();
     }
 
     // already incremented when JOIN REQ got sent off
