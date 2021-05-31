@@ -1239,7 +1239,18 @@ function uflt12f(rawUflt12)
 
 - HEAD has the following changes.
 
+  - Fix some broken documentation references [#644](https://github.com/mcci-catena/arduino-lmic/issues/644), [#646](https://github.com/mcci-catena/arduino-lmic/pulls/646), [#673](https://github.com/mcci-catena/arduino-lmic/pulls/673).
   - Re-added CI testing, since Travis CI no longer works for us [#647](https://github.com/mcci-catena/arduino-lmic/issues/647); fixed AVR compliance CI compile [#679](https://github.com/mcci-catena/arduino-lmic/issues/679).
+  - Don't use `defined()` in macro definitions [#606](https://github.com/mcci-catena/arduino-lmic/issues/606)
+  - Fix a warning on AVR32 [#709](https://github.com/mcci-catena/arduino-lmic/pulls/709).
+  - Fix Helium link in examples [#715](https://github.com/mcci-catena/arduino-lmic/issues/715), [#718](https://github.com/mcci-catena/arduino-lmic/pulls/718).
+  - Remove `XCHANNEL` support from US region [#404](https://github.com/mcci-catena/arduino-lmic/issues/404)
+  - Assign channels randomly without replacement [#515](https://github.com/mcci-catena/arduino-lmic/issues/515), [#619](https://github.com/mcci-catena/arduino-lmic/issues/619), [#730](https://github.com/mcci-catena/arduino-lmic/issues/730).
+  - Don't allow `LMIC_setupChannel()` to change default channels [#722](https://github.com/mcci-catena/arduino-lmic/issues/722).
+  - Don't accept out-of-range DRs from MAC downlink messages [#723](https://github.com/mcci-catena/arduino-lmic/issues/723)
+  - Adopt semantic versions completely [#726](https://github.com/mcci-catena/arduino-lmic/issues/726).
+  - Implement JoinAccept CFList processing for US/AU [#739](https://github.com/mcci-catena/arduino-lmic/issues/739).
+  - Correct JoinAccept CFList processing for AS923 [#740](https://github.com/mcci-catena/arduino-lmic/issues/740).
 
 - v3.3.0 is primarily a maintenance and roll-up release.
 
