@@ -2875,7 +2875,7 @@ dr_t LMIC_feasibleDataRateForFrame(dr_t dr, u1_t payloadSize) {
 }
 
 static bit_t isTxPathBusy(void) {
-    return (LMIC.opmode & (OP_TXDATA|OP_JOINING)) != 0;
+    return (LMIC.opmode & (OP_POLL | OP_TXDATA | OP_JOINING | OP_TXRXPEND)) != 0;
 }
 
 bit_t LMIC_queryTxReady (void) {
