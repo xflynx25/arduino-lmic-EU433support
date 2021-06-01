@@ -1251,6 +1251,7 @@ function uflt12f(rawUflt12)
   - Adopt semantic versions completely [#726](https://github.com/mcci-catena/arduino-lmic/issues/726).
   - Implement JoinAccept CFList processing for US/AU [#739](https://github.com/mcci-catena/arduino-lmic/issues/739).
   - Correct JoinAccept CFList processing for AS923 [#740](https://github.com/mcci-catena/arduino-lmic/issues/740).
+  - Don't compile board config objects when we know for sure they'll not be used; compilers can't always tell [#736](https://github.com/mcci-catena/arduino-lmic/issues/736).
 
 - v3.3.0 is primarily a maintenance and roll-up release.
 
