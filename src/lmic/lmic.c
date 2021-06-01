@@ -2878,6 +2878,10 @@ static bit_t isTxPathBusy(void) {
     return (LMIC.opmode & (OP_TXDATA|OP_JOINING)) != 0;
 }
 
+bit_t LMIC_queryTxReady (void) {
+    return ! isTxPathBusy();
+}
+
 static bit_t adjustDrForFrameIfNotBusy(u1_t len) {
     if (isTxPathBusy()) {
         return 0;
@@ -2895,6 +2899,10 @@ void LMIC_setTxData (void) {
 }
 
 void LMIC_setTxData_strict (void) {
+    if (isTxPathBusy()) {
+        return;
+    }
+
     LMICOS_logEventUint32(__func__, ((u4_t)LMIC.pendTxPort << 24u) | ((u4_t)LMIC.pendTxConf << 16u) | (LMIC.pendTxLen << 0u));
     LMIC.opmode |= OP_TXDATA;
     if( (LMIC.opmode & OP_JOINING) == 0 ) {
@@ -2913,7 +2921,7 @@ lmic_tx_error_t LMIC_setTxData2 (u1_t port, xref2u1_t data, u1_t dlen, u1_t conf
 
 // send a message w/o callback; do not adjust data rate
 lmic_tx_error_t LMIC_setTxData2_strict (u1_t port, xref2u1_t data, u1_t dlen, u1_t confirmed) {
-    if ( LMIC.opmode & OP_TXDATA ) {
+    if (isTxPathBusy()) {
         // already have a message queued
         return LMIC_ERROR_TX_BUSY;
     }
