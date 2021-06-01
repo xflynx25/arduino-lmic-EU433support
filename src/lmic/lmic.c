@@ -2941,7 +2941,7 @@ lmic_tx_error_t LMIC_setTxData2_strict (u1_t port, xref2u1_t data, u1_t dlen, u1
             return LMIC_ERROR_TX_FAILED;
         }
     }
-    return 0;
+    return LMIC_ERROR_SUCCESS;
 }
 
 // send a message with callback; try to adjust data rate
