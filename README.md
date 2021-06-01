@@ -1342,7 +1342,7 @@ This library started from the IBM V1.5 open-source code.
 
 - [`@ngraziano`](https://github.com/ngraziano) did extensive testing and contributed numerous ADR-related patches.
 
-There are many others, who have contributed code and also participated in discussions, performed testing, reported problems and results. Thanks to all who have participated.
+There are many others, who have contributed code and also participated in discussions, performed testing, reported problems and results. Thanks to all who have participated. We hope to use something like [All Contributors](https://https://allcontributors.org/) to help keep this up to date, but so far the automation isn't working.
 
 ## Trademark Acknowledgements
 
