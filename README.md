@@ -1240,6 +1240,9 @@ function uflt12f(rawUflt12)
 
 ## Release History
 
+- HEAD contains the following changes
+  - Adapt ttn-otaa-network-time example to be compatible with [PaulStoffregen/Time](https://github.com/PaulStoffregen/Time) v1.6.1, which deletes `Time.h` in favor of `TimeLib.h` [#763](https://github.com/mcci-catena/arduino-lmic/issues/763). Version is v4.0.1-pre1.
+
 - v4.0 is a major release; changes are significant enough to be "likely breaking". It includes the following changes.
 
   - Fix some broken documentation references [#644](https://github.com/mcci-catena/arduino-lmic/issues/644), [#646](https://github.com/mcci-catena/arduino-lmic/pulls/646), [#673](https://github.com/mcci-catena/arduino-lmic/pulls/673).
