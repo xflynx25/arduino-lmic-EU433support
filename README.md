@@ -712,7 +712,7 @@ In some boards require much more advanced management. The LMIC has a very flexib
 The full example looks like this:
 
 ```c++
-class cMyHlaConfiguration_t : public Arduino_LMIC::HalConfiguration_t
+class cMyHalConfiguration_t : public Arduino_LMIC::HalConfiguration_t
   {
 public:
   // ...
@@ -730,7 +730,7 @@ public:
     {
     return policy;
     }
-  }
+  };
 ```
 
 #### HalConfiguration_t methods
