@@ -1,4 +1,19 @@
+/*
 
+Module:  getconfig_ttgo_lora32_v2.1.cpp
+
+Function:
+        Arduino-LMIC C++ HAL pinmap for TTGO ESP32 OLED V2.1
+
+Copyright & License:
+        See accompanying LICENSE file.
+
+Author:
+        Christoph Schultz, GitHub @ChrSchultz   March 2021
+
+*/
+
+#if defined(ARDUINO_TTGO_LoRa32_v21new)
 
 #include <arduino_lmic_hal_boards.h>
 #include <Arduino.h>
@@ -64,4 +79,4 @@ const HalPinmap_t * GetPinmap_ttgo_lora32_v21 (void)
 
 }; // namespace Arduino_LMIC
 
-    
+#endif // ARDUINO_TTGO_LoRa32_v21new
