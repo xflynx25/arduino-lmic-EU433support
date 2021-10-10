@@ -169,7 +169,7 @@ us know (creating a GitHub issue is probably the best way for that).
 
 ### PDF/Word Documentation
 
-The `doc` directory contains [LMIC-v3.3.0.pdf](doc/LMIC-v3.3.0.pdf), which documents the library APIs and use. It's based on the original IBM documentation, but has been adapted for this version of the library. However, as this library is used for more than Arduino, that document is supplemented by practical details in this document.
+The `doc` directory contains [LMIC-v4.0.0.pdf](doc/LMIC-v4.0.0.pdf), which documents the library APIs and use. It's based on the original IBM documentation, but has been adapted for this version of the library. However, as this library is used for more than Arduino, that document is supplemented by practical details in this document.
 
 ### Adding Regions
 
@@ -1244,6 +1244,7 @@ function uflt12f(rawUflt12)
   - Adapt ttn-otaa-network-time example to be compatible with [PaulStoffregen/Time](https://github.com/PaulStoffregen/Time) v1.6.1, which deletes `Time.h` in favor of `TimeLib.h` [#763](https://github.com/mcci-catena/arduino-lmic/issues/763). Version is v4.0.1-pre1.
   - Add support for TTGO LoRa32-OLED v2.1.6. (Thanks to @ChrSchultz, [#692](https://github.com/mcci-catena/arduino-lmic/pull/692).)
   - Correct max TX EIRP for Japan to 13 dBm. (Thanks to @ryos36, [#662](https://github.com/mcci-catena/arduino-lmic/pull/662).)
+  - Correct link in this document to the LMIC-v4.0.0 pdf ([#788](https://github.com/mcci-catena/arduino-lmic/issues/788)).
 
 - v4.0 is a major release; changes are significant enough to be "likely breaking". It includes the following changes.
 
