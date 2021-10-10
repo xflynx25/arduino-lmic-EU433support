@@ -712,7 +712,7 @@ In some boards require much more advanced management. The LMIC has a very flexib
 The full example looks like this:
 
 ```c++
-class cMyHlaConfiguration_t : public Arduino_LMIC::HalConfiguration_t
+class cMyHalConfiguration_t : public Arduino_LMIC::HalConfiguration_t
   {
 public:
   // ...
@@ -722,7 +722,7 @@ public:
   // or the high-power mode above 17 dBm. In other words, it lets the
   // LMIC-determined policy determine what's to be done.
 
-  virutal TxPowerPolicy_t getTxPowerPolicy(
+  virtual TxPowerPolicy_t getTxPowerPolicy(
     TxPowerPolicy_t policy,
     int8_t requestedPower,
     uint32_t frequency
@@ -730,7 +730,7 @@ public:
     {
     return policy;
     }
-  }
+  };
 ```
 
 #### HalConfiguration_t methods
