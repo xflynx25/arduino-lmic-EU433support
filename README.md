@@ -1248,6 +1248,7 @@ function uflt12f(rawUflt12)
   - Warn about Feather pin wiring requirements ([#755](https://github.com/mcci-catena/arduino-lmic/issues/755), thanks to [@d-a-v](https://github.com/d-a-v)).
   - Fix typos in this document ([#780](https://github.com/mcci-catena/arduino-lmic/issues/780), thanks [@PeeJay](https://github.com/PeeJay)).
   - Fix additional warnings on non-ARM platforms ([#791](https://github.com/mcci-catena/arduino-lmic/issues/791), thanks [@d-a-v](https://github.com/d-a-v)).
+  - Allow application to set the value to be used in `DeviceStatusAns` MAC messages ([#576](https://github.com/mcci-catena/arduino-lmic/issues/576) and [#560](https://github.com/mcci-catena/arduino-lmic/issues/560), thanks to [@altishchenko](https://github.com/altishchenko)).
 
 - v4.0 is a major release; changes are significant enough to be "likely breaking". It includes the following changes.
 
