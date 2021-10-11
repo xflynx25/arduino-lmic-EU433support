@@ -173,7 +173,7 @@ us know (creating a GitHub issue is probably the best way for that).
 
 ### PDF/Word Documentation
 
-The `doc` directory contains [LMIC-v4.0.0.pdf](doc/LMIC-v4.0.0.pdf), which documents the library APIs and use. It's based on the original IBM documentation, but has been adapted for this version of the library. However, as this library is used for more than Arduino, that document is supplemented by practical details in this document.
+The `doc` directory contains [LMIC-v4.1.0.pdf](doc/LMIC-v4.1.0.pdf), which documents the library APIs and use. It's based on the original IBM documentation, but has been adapted for this version of the library. However, as this library is used for more than Arduino, that document is supplemented by Arduino-specific details in this document.
 
 ### Adding Regions
 
@@ -1254,6 +1254,7 @@ function uflt12f(rawUflt12)
   - Fix additional warnings on non-ARM platforms ([#791](https://github.com/mcci-catena/arduino-lmic/issues/791), thanks [@d-a-v](https://github.com/d-a-v)).
   - Allow application to set the value to be used in `DeviceStatusAns` MAC messages ([#576](https://github.com/mcci-catena/arduino-lmic/issues/576) and [#560](https://github.com/mcci-catena/arduino-lmic/issues/560), thanks to [@altishchenko](https://github.com/altishchenko)).
   - Minor adjustments to the compliance sketch ([#800](https://github.com/mcci-catena/arduino-lmic/issues/576)).
+  - Update the LMIC reference manual to `LMIC-v4.1.0.pdf`.
 
 - v4.0 is a major release; changes are significant enough to be "likely breaking". It includes the following changes.
 
