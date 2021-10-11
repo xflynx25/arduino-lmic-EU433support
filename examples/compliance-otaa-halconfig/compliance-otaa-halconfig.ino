@@ -765,6 +765,12 @@ void setup_printSignOn()
     printVersion(ARDUINO_LMIC_VERSION);
     Serial.print(F(" configured for region "));
     Serial.print(CFG_region);
+
+#if defined(ARDUINO_LMIC_CFG_SUBBAND) && ARDUINO_LMIC_CFG_SUBBAND != -1
+    Serial.print(F(" subband[0:7] "));
+    Serial.print(unsigned(ARDUINO_LMIC_CFG_SUBBAND));
+#endif // defined(ARDUINO_LMIC_CFG_SUBBAND) && ARDUINO_LMIC_CFG_SUBBAND != -1
+
     Serial.println(F(".\nRemember to select 'Line Ending: Newline' at the bottom of the monitor window."));
 
     setup_printSignOnDashLine();
@@ -772,9 +778,9 @@ void setup_printSignOn()
     }
 
 void setupForNetwork(bool preJoin) {
-#if CFG_LMIC_US_like
-    LMIC_selectSubBand(0);
-#endif
+#if defined(ARDUINO_LMIC_CFG_SUBBAND) && ARDUINO_LMIC_CFG_SUBBAND != -1
+    LMIC_selectSubBand(ARDUINO_LMIC_CFG_SUBBAND);
+#endif // defined(ARDUINO_LMIC_CFG_SUBBAND) && ARDUINO_LMIC_CFG_SUBBAND != -1
 }
 
 void loop() {
