@@ -99,6 +99,9 @@ bit_t LMICuslike_canMapChannels(u1_t chpage, u2_t chmap) {
 	|| channel map appllies to 500kHz (ch 64..71) and in addition
 	|| all channels 0..63 are turned off or on.  MCMC_LADR_CHP_BANK
 	|| is also special, in that it enables subbands.
+        ||
+        || TODO(tmm@mcci.com) revise the 0xFF00 mask for regions with other than
+        || eight 500 kHz channels.
 	*/
 	if (chpage < MCMD_LinkADRReq_ChMaskCntl_USLIKE_SPECIAL) {
 		// operate on channels 0..15, 16..31, 32..47, 48..63, 64..71

@@ -120,7 +120,6 @@ The examples in this library (apart from the compliance sketch) are somewhat pri
 
 Although the wrappers in this library are designed to make the LMIC useful in the Arduino environment, the maintainers have tried to be careful to keep the core LMIC code generally useful. For example, I use this library without modification (but with wrappers) on a RISC-V platform in a non-Arduino environment.
 
-
 ## Installing
 
 To install this library:
@@ -854,8 +853,7 @@ The library observes and processes rising edges on the pins as part of `os_runlo
 This can be configured in one of two ways (see
 [Controlling use of interrupts](#controlling-use-of-interrupts)).  See [Interrupts and Arduino system timing](#interrupts-and-arduino-system-timing) for implementation details.
 
-By default, the library 
-polls the enabled pins to determine whether an event has occurred. This approach
+By default, the library polls the enabled pins to determine whether an event has occurred. This approach
 allows use of any CPU pin to sense the DIOs, and makes no assumptions about
 interrupts. However, it means that the end-of-transmit event is not observed
 (and time-stamped) until `os_runloop_once()` is called.
