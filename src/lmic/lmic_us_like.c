@@ -111,8 +111,8 @@ bit_t LMICuslike_canMapChannels(u1_t chpage, u2_t chmap) {
 			return 1;
 		}
 	} else if (chpage == MCMD_LinkADRReq_ChMaskCntl_USLIKE_BANK) {
-		if (chmap == 0 || (chmap & 0xFF00) != 0) {
-			// no bits set, or reserved bitsset , fail.
+		if ((chmap & 0xFF00) != 0) {
+			// Reserved bits set, fail.
 			return 0;
 		}
 	} else if (chpage == MCMD_LinkADRReq_ChMaskCntl_USLIKE_125ON ||
