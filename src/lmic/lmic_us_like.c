@@ -117,11 +117,16 @@ bit_t LMICuslike_canMapChannels(u1_t chpage, u2_t chmap) {
 		}
 	} else if (chpage == MCMD_LinkADRReq_ChMaskCntl_USLIKE_125ON ||
 	           chpage == MCMD_LinkADRReq_ChMaskCntl_USLIKE_125OFF) {
-                u1_t const en125 = chpage == MCMD_LinkADRReq_ChMaskCntl_USLIKE_125ON;
-
-		// if disabling all 125kHz chans, must have at least one 500kHz chan
-		// don't allow reserved bits to be set in chmap.
-		if ((! en125 && chmap == 0) || (chmap & 0xFF00) != 0)
+                //
+                // if disabling all 125kHz chans, you might think we must have
+                // at least one 500kHz chan; but that's a local conclusion.
+                // Some network servers will disable all (including 500kHz)
+                // then turn things back on in the next LinkADRReq. So
+                // we can't fail that here.
+                //
+                // But don't allow reserved bits to be set in chmap.
+                //
+                if ((chmap & 0xFF00) != 0)
 			return 0;
 	} else {
 		return 0;
