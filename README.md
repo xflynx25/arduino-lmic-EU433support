@@ -1,6 +1,6 @@
 # Arduino-LMIC library ("MCCI LoRaWAN LMIC Library")
 
-[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v4.1.0...master) [![Arduino CI](https://img.shields.io/github/workflow/status/mcci-catena/arduino-lmic/Arduino%20CI)](https://github.com/mcci-catena/arduino-lmic/actions)
+[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v4.1.1...master) [![Arduino CI](https://img.shields.io/github/workflow/status/mcci-catena/arduino-lmic/Arduino%20CI)](https://github.com/mcci-catena/arduino-lmic/actions)
 
 **Contents:**
 
@@ -1242,7 +1242,14 @@ function uflt12f(rawUflt12)
 
 ## Release History
 
-- v4.1 contains the following changes
+- v4.1.1 is a patch release.
+
+  - Fix US-like regions when network server disables all channels before setting others up ([#819](https://github.com/mcci-catena/arduino-lmic/issues/819)).
+  - Fix US-like regions when network server disables all banks before setting others up ([#820](https://github.com/mcci-catena/arduino-lmic/issues/820)).
+  - Documentation improvements in README and in code commentary.
+
+- v4.1.0 contains the following changes
+
   - Adapt `ttn-otaa-network-time` example to be compatible with [PaulStoffregen/Time](https://github.com/PaulStoffregen/Time) v1.6.1, which deletes `Time.h` in favor of `TimeLib.h` [#763](https://github.com/mcci-catena/arduino-lmic/issues/763). Version is v4.0.1-pre1.
   - Add support for TTGO LoRa32-OLED v2.1.6. (Thanks to [@ChrSchultz](https://github.com/ChrSchultz), [#692](https://github.com/mcci-catena/arduino-lmic/pull/692).)
   - Correct max TX EIRP for Japan to 13 dBm. (Thanks to [@ryos36](https://github.com/ryos36), [#662](https://github.com/mcci-catena/arduino-lmic/pull/662).)
