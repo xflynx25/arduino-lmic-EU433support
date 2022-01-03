@@ -1242,6 +1242,10 @@ function uflt12f(rawUflt12)
 
 ## Release History
 
+- HEAD has the following changes.
+
+  - Enable device time request by default in config file ([#840](https://github.com/mcci-catena/arduino-lmic/issues/840)).
+
 - v4.1.1 is a patch release.
 
   - Fix US-like regions when network server disables all channels before setting others up ([#819](https://github.com/mcci-catena/arduino-lmic/issues/819)).
