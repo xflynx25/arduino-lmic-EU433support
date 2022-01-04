@@ -343,6 +343,8 @@ Disable or enable support for device network-time requests (LoRaWAN MAC request 
 
 If disabled, stub routines are provided that will return failure (so you don't need conditional compiles in client code).
 
+By default, device network-time requests were disabled in versions prior to `v4.2.0-pre1`. As of v4.2.0-pre1, the default is that device network-time requests are enabled.
+
 ### Rarely changed variables
 
 The remaining variables are rarely used, but we list them here for completeness.
