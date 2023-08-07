@@ -587,8 +587,38 @@ static void setModulationParams (u1_t packetType) {
         hal_spi_write(SetModulationParams, modParams, SX126X_LORA_MODPARAMS_LEN);
 
     } else {
-        // TODO GFSK portion not implemented yet
-        ASSERT(0);
+        // GFSK portion NOT TESTED yet.
+
+        // GFSK packet type takes 8 bytes
+        u1_t modParams[SX126X_GFSK_MODPARAMS_LEN] = {0};
+
+        // GFSK ModParam1, 2 & 3 - br
+        // br = 32 * Fxtal / bit rate. Assuming Fxtal in Hz (32MHz) and bit rate in bytes
+        // So br for 50kbps = 0x005000
+        modParams[0] = 0x00;
+        modParams[1] = 0x50;
+        modParams[2] = 0x00;
+
+        // GFSK ModParam4 - PulseShape
+        // select Gaussian filter BT=0.5
+        modParams[3] = 0x09;
+
+        // GFSK ModParam5 - BW
+        // select RX_BW_78200 (78.2 kHz DSB)
+        modParams[4] = 0x1B;
+        
+        // GFSK ModParam6, 7 & 8 - Fdev
+        // Fdev = (Frequency Deviation * 2^25) / Fxtal
+        // Using + / - 25kHz, Fdev = 0x005D21
+        modParams[5] = 0x00;
+        modParams[6] = 0x5D;
+        modParams[7] = 0x21;
+
+        // To ensure correct demodulation, the following limit must be respected for the selection of the bandwidth:
+        // (2 * Fdev + BR) < BW
+        // CHECK: 2 * 0x5D21 + 0x5000 = 0x010A42 (passes test)
+
+        hal_spi_write(SetModulationParams, modParams, SX126X_GFSK_MODPARAMS_LEN);
     }
 }
 
@@ -634,8 +664,51 @@ static void setPacketParams (u1_t packetType, u1_t frameLength, u1_t invertIQ) {
             writeRegister(IQPolaritySetup, (readRegister(IQPolaritySetup) | 0x04));
         }
 
+    } else if (packetType == PACKET_TYPE_GFSK) {
+        // GFSK portion NOT TESTED yet.
+        // GFSK packet type takes 9 bytes
+        u1_t packetParams[SX126X_GFSK_PACKETPARAMS_LEN] = {0};
+
+        // GFSK PacketParam1 (MSB) & 2 (LSB) - PreambleLength
+        // The existing radio.c appears to use 0x0005
+        packetParams[0] = 0x00;
+        packetParams[1] = 0x05;
+
+        // GFSK PacketParam3 - PreambleDetectorLength
+        // The existing radio.c appears to use a 16 bit preamble
+        packetParams[2] = 0x05;
+
+        // GFSK PacketParam4 - SyncWordLength in bits
+        // The existing radio.c appears to use a 3 byte sync word
+        packetParams[3] = 0x18;
+
+        // GFSK PacketParam5 - AddrComp
+        // The existing radio.c appears to disable
+        packetParams[4] = 0x00;
+
+        // GFSK PacketParam6 - PacketType
+        // The existing radio.c appears to use variable length
+        packetParams[5] = 0x01;
+
+        // GFSK PacketParam7 - PayloadLength
+        packetParams[6] = frameLength;
+
+        // GFSK PacketParam8 - CRCType - CRC_2_BYTE(CRC computed on 2 byte)
+        packetParams[7] = 0x02;
+
+        // GFSK PacketParam9 - WhiteningEnable
+        packetParams[8] = 0x01;
+
+        hal_spi_write(SetPacketParams, packetParams, SX126X_LORA_PACKETPARAMS_LEN);
+
+        // Sync word is directly programmed into the device through simple register access.
+        writeRegister(SyncWord0, 0xC1);
+        writeRegister(SyncWord1, 0x94);
+        writeRegister(SyncWord2, 0xC1);
+
+        // Keep default values for whitening
     } else {
-        // GFSK portion not implemented yet
+        // No other packet type supported
         ASSERT(0);
     }
 }
@@ -777,6 +850,42 @@ static void txlora () {
 #endif
 }
 
+static void txfsk () {
+    // Send configuration commands to radio
+    radio_config();
+    setPacketType(PACKET_TYPE_GFSK);
+    setRfFrequency();
+    setTxParams();
+
+    writeBuffer(0x00, LMIC.frame, LMIC.dataLen);
+
+    hal_pin_rxtx(1);
+
+    setModulationParams(PACKET_TYPE_GFSK);
+    setPacketParams(PACKET_TYPE_GFSK, LMIC.dataLen, LMIC.noRXIQinversion);
+    
+    // Set DioIrq params to DIO1
+    u2_t clearAllIrq = 0x03FF;
+    u2_t dioMask = TxDone | Timeout;
+    u2_t noMask = 0;
+    clearIrqStatus(clearAllIrq);
+    setDioIrqParams(dioMask, dioMask, noMask, noMask);
+
+    // now we actually start the transmission
+    if (LMIC.txend) {
+        u4_t nLate = hal_waitUntil(LMIC.txend); // busy wait until exact tx time
+        if (nLate > 0) {
+            LMIC.radio.txlate_ticks += nLate;
+            ++LMIC.radio.txlate_count;
+        }
+    }
+    LMICOS_logEventUint32("+Tx FSK", LMIC.dataLen);
+    
+    // Set 10s timeout
+    u1_t timeout[SX126X_TIMEOUT_LEN] = {0x09, 0xC4, 0x00};
+    setTx(timeout);
+}
+
 // start transmitter (buf=LMIC.frame, len=LMIC.dataLen)
 static void starttx () {
     // SX127x sets sleep however this doesn't appear to be necessary for SX126x
@@ -795,15 +904,12 @@ static void starttx () {
             return;
         }
     }
-
-    txlora();
-
-    // FSK is not implemented
-    /*if(getSf(LMIC.rps) == FSK) { // FSK modem
+    
+    if (getSf(LMIC.rps) == FSK) { // FSK modem
         txfsk();
     } else { // LoRa modem
         txlora();
-    }*/
+    }
     // the radio will go back to STANDBY mode as soon as the TX is finished
     // the corresponding IRQ will inform us about completion.
 }
@@ -836,7 +942,6 @@ static void rxlora (u1_t rxmode) {
     setPacketType(PACKET_TYPE_LORA);
     setRfFrequency();
     
-    // TODO setBufferBaseAddress consistent with rest of radio API
     setBufferBaseAddress();
     
     setModulationParams(PACKET_TYPE_LORA);
@@ -860,7 +965,6 @@ static void rxlora (u1_t rxmode) {
     // Set DioIrq params to DIO1
     u2_t dioMask = RxDone | Timeout;
     u2_t noMask = 0;
-    // TODO Confirm that it is necessary to clear all IRQ flags
     u2_t clearAllIrq = 0x03FF;
     clearIrqStatus(clearAllIrq);
     setDioIrqParams(dioMask, dioMask, noMask, noMask);
@@ -908,6 +1012,59 @@ static void rxlora (u1_t rxmode) {
         getIh(LMIC.rps)
     );
 #endif
+}
+
+static void rxfsk (u1_t rxmode) {
+    // only single or continuous rx (no noise sampling)
+    if (rxmode == RXMODE_SCAN) {
+        // indicate no bytes received.
+        LMIC.dataLen = 0;
+        // complete the request by scheduling the job.
+        os_setCallback(&LMIC.osjob, LMIC.osjob.func);
+    }
+
+    // Send configuration commands to radio
+    radio_config();
+    setPacketType(PACKET_TYPE_GFSK);
+    setRfFrequency();
+    
+    setBufferBaseAddress();
+    
+    setModulationParams(PACKET_TYPE_GFSK);
+    setPacketParams(PACKET_TYPE_GFSK, MAX_LEN_FRAME, NULL);
+
+    // Rx Boosted gain. Default is Rx Power saving. Uncomment if boosted is desired
+    // writeRegister(RxGain, (readRegister(RxGain) | 0x96));
+
+    hal_pin_rxtx(0);
+    
+    // Set DioIrq params to DIO1
+    u2_t dioMask = RxDone | Timeout;
+    u2_t noMask = 0;
+    u2_t clearAllIrq = 0x03FF;
+    clearIrqStatus(clearAllIrq);
+    setDioIrqParams(dioMask, dioMask, noMask, noMask);
+
+    // now instruct the radio to receive
+    if (rxmode == RXMODE_SINGLE) {
+        u4_t nLate = hal_waitUntil(LMIC.rxtime); // busy wait until exact rx time
+        u1_t rxTimeoutSingle[SX126X_TIMEOUT_LEN] = {
+            0x00,
+            0x00,
+            0x00
+        };
+        setRx(rxTimeoutSingle);
+        LMICOS_logEventUint32("+Rx FSK", nLate);
+        rxlate(nLate);
+    } else {
+        LMICOS_logEvent("+Rx FSK Continuous");
+        u1_t rxTimeoutContinuous[SX126X_TIMEOUT_LEN] = {
+            0xFF,
+            0xFF,
+            0xFF
+        };
+        setRx(rxTimeoutContinuous);
+    }
 }
 
 static void startrx (u1_t rxmode) {
@@ -1137,46 +1294,32 @@ void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
     LMIC_API_PARAMETER(dio);
 
 #if CFG_TxContinuousMode
-    // NOT IMPLEMENTED -> Tx for testing only
-    // in continuous mode, we don't use the now parameter.
-    LMIC_UNREFERENCED_PARAMETER(now);
-
-    // clear radio IRQ flags
-    // u2_t clearAllIrq = 0x03FF;
-    // clearIrqStatus(clearAllIrq);
-    // GetRxBufferStatus
-    // u1_t p = readReg(LORARegFifoAddrPtr);
-    // Reset the FIFO pointer position to 0x00
-    // writeReg(LORARegFifoAddrPtr, 0x00);
-    // Check operating radio mode
-    // u1_t s = readReg(RegOpMode);
-    // Read modem config (byte 3 is TxContinuousMode flag)
-    // u1_t c = readReg(LORARegModemConfig2);
-    // LMICOS_logEventUint32("+Tx LoRa Continuous", (r << 8) + c);
-    // opmode(OPMODE_TX);
-    return;
+    // TxContinuosMode NOT IMPLEMENTED for SX126x.
+    ASSERT(0);
 #else /* ! CFG_TxContinuousMode */
 
 #if LMIC_DEBUG_LEVEL > 0
     ostime_t const entry = now;
 #endif
+    
+    u2_t rawFlags = getIrqStatus();
+
+    // Map SX126x IRQ registers to 8 bit for consistency with legacy SX127x LMIC struct
+    // SX127x 0 CadDetected, 1 FhssChangeChannel, 2 CadDone, 3 TxDone, 4 ValidHeader, 5 PayloadCrcError, 6 RxDone, 7 RxTimeout
+    // SX126x 8 CadDetected, 14 LrFhssHop,        7 CadDone, 0 TxDone, 4 ValidHeader, 6 CrcErr,          1 RxDone, 9 Timeout
+    u1_t flags = 0;
+    flags |= (rawFlags & 0x0100) >> 8;
+    flags |= (rawFlags & 0x4000) >> 13;
+    flags |= (rawFlags & 0x0080) >> 5;
+    flags |= (rawFlags & 0x0001) << 3;
+    flags |= (rawFlags & 0x0010);
+    flags |= (rawFlags & 0x0040) >> 1;
+    flags |= (rawFlags & 0x0002) << 5;
+    flags |= (rawFlags & 0x0200) >> 2;
+
+    LMIC.saveIrqFlags = flags;
+
     if(getPacketType() == PACKET_TYPE_LORA) { // LORA modem
-        u2_t rawFlags = getIrqStatus();
-
-        // Map SX126x IRQ registers to 8 bit for consistency with legacy SX127x LMIC struct
-        // SX127x 0 CadDetected, 1 FhssChangeChannel, 2 CadDone, 3 TxDone, 4 ValidHeader, 5 PayloadCrcError, 6 RxDone, 7 RxTimeout
-        // SX126x 8 CadDetected, 14 LrFhssHop,        7 CadDone, 0 TxDone, 4 ValidHeader, 6 CrcErr,          1 RxDone, 9 Timeout
-        u1_t flags = 0;
-        flags |= (rawFlags & 0x0100) >> 8;
-        flags |= (rawFlags & 0x4000) >> 13;
-        flags |= (rawFlags & 0x0080) >> 5;
-        flags |= (rawFlags & 0x0001) << 3;
-        flags |= (rawFlags & 0x0010);
-        flags |= (rawFlags & 0x0040) >> 1;
-        flags |= (rawFlags & 0x0002) << 5;
-        flags |= (rawFlags & 0x0200) >> 2;
-
-        LMIC.saveIrqFlags = flags;
         LMICOS_logEventUint32("radio_irq_handler_v2: LoRa", flags);
         LMIC_X_DEBUG_PRINTF("IRQ=%02x\n", flags);
         LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ rawFlags=%04X\n", os_getTime(), rawFlags);
@@ -1218,13 +1361,44 @@ void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
                 LMIC.rxtime, entry - LMIC.rxtime, now2 - entry, LMIC.rxtime-LMIC.txend);
 #endif
         }
-        // clear radio IRQ flags
-        u2_t clearAllIrq = 0x03FF;
-        clearIrqStatus(clearAllIrq);
-    } else { // FSK modem NOT IMPLEMENTED
-        // we shouldn't be here... treat as timeout.
-        LMIC.dataLen = 0;
+        
+    } else { // FSK modem
+        LMICOS_logEventUint32("radio_irq_handler_v2: LoRa", flags);
+        LMIC_X_DEBUG_PRINTF("IRQ=%02x\n", flags);
+        LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ rawFlags=%04X\n", os_getTime(), rawFlags);
+        LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ flags=%02X\n", os_getTime(), flags);
+        if( flags & IRQ_LORA_TXDONE_MASK ) {
+            // save exact tx time
+            LMIC.txend = now;
+        } else if( flags & IRQ_LORA_RXDONE_MASK ) {
+            // save exact rx time
+            LMIC.rxtime = now;
+            // read the PDU and inform the MAC that we received something
+            u1_t rxBufferStatusRaw[SX126X_RXBUFFERSTATUS_LEN];
+            u1_t packetStatusRaw[SX126X_PACKETSTATUS_LEN];
+            getRxBufferStatus(rxBufferStatusRaw);
+            LMIC.dataLen = rxBufferStatusRaw[0];
+            // now read the FIFO
+            readBuffer(rxBufferStatusRaw[1], LMIC.frame, LMIC.dataLen);
+            // read rx quality parameters
+            LMIC.snr  = 0;              // SX126x doesn't give SNR for FSK.
+            u1_t const rRssi = packetStatusRaw[2]; // - RSSI [dB] * 2
+            s2_t rssi = -rRssi / 2;
+            LMIC.rssi = (s1_t) (RSSI_OFF + (rssi < -196 ? -196 : rssi > 63 ? 63 : rssi)); // RSSI [dBm] (-196...+63)
+        } else if( flags1 & IRQ_LORA_RXTOUT_MASK ) {
+            // indicate timeout
+            LMIC.dataLen = 0;
+        } else {
+            // ASSERT(0);
+            // we're not sure why we're here... treat as timeout.
+            LMIC.dataLen = 0;
+        }
     }
+    
+    // clear radio IRQ flags
+    u2_t clearAllIrq = 0x03FF;
+    clearIrqStatus(clearAllIrq);
+
     // go from standby to sleep
     // Sleep needs to be entered from standby_RC mode 
     if ((getStatus() | SX126x_GETSTATUS_CHIPMODE_MASK) != SX126x_CHIPMODE_STDBY_RC) {
