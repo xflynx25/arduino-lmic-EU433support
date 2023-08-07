@@ -165,9 +165,9 @@
 
 // ----------------------------------------
 // PacketType Definitions        **  Chapter 13 SetPacketType
-#define PACKET_TYPE_GFSK 0x00
-#define PACKET_TYPE_LORA 0x01
-#define PACKET_TYPE_LR_FHSS 0x02
+#define PACKET_TYPE_GFSK     0x00
+#define PACKET_TYPE_LORA     0x01
+#define PACKET_TYPE_LR_FHSS  0x02
 
 // ----------------------------------------
 // RampTime Definitions        **  Chapter 13 SetTxParams
@@ -182,10 +182,10 @@
 
 // ----------------------------------------
 // LoRa Modulation Params        **  Chapter 13 SetModulationParams
-#define LORA_MODPARAM1_SF7      0x07
-#define SX126x_MODPARAM2_BW_125 0x04
-#define SX126x_MODPARAM2_BW_250 0x05
-#define SX126x_MODPARAM2_BW_500 0x06
+#define LORA_MODPARAM1_SF7       0x07
+#define SX126x_MODPARAM2_BW_125  0x04
+#define SX126x_MODPARAM2_BW_250  0x05
+#define SX126x_MODPARAM2_BW_500  0x06
 #define SX126x_MODPARAM3_CR__4_5 0x01
 #define SX126x_MODPARAM3_CR__4_6 0x02
 #define SX126x_MODPARAM3_CR__4_7 0x03
@@ -206,29 +206,29 @@
 
 // ----------------------------------------
 // Named constants        **  Added by author for ease of reading
-#define SX126X_RW_REGISTER_LEN 3
-#define SX126X_W_BUFFER_LEN 2
-#define SX126X_SLEEPCONFIG_LEN 1
-#define SX126X_STDBYCONFIG_LEN 1
-#define SX126X_TIMEOUT_LEN 3
-#define SX126X_REGMODEPARAM_LEN 1
-#define SX126X_CALIBPARAM_LEN 1
-#define SX126X_IMAGECALPARAM_LEN 2
-#define SX126X_PACONFIGPARAM_LEN 4
-#define SX126X_SETIRQPARAMS_LEN 8
-#define SX126X_IRQSTATUS_LEN 2
-#define SX126X_CLEARIRQPARAMS_LEN 2
-#define SX126X_RFFREQPARAMS_LEN 4
-#define SX126X_GFSK_MODPARAMS_LEN 8
-#define SX126X_LORA_MODPARAMS_LEN 4
+#define SX126X_RW_REGISTER_LEN       3
+#define SX126X_W_BUFFER_LEN          2
+#define SX126X_SLEEPCONFIG_LEN       1
+#define SX126X_STDBYCONFIG_LEN       1
+#define SX126X_TIMEOUT_LEN           3
+#define SX126X_REGMODEPARAM_LEN      1
+#define SX126X_CALIBPARAM_LEN        1
+#define SX126X_IMAGECALPARAM_LEN     2
+#define SX126X_PACONFIGPARAM_LEN     4
+#define SX126X_SETIRQPARAMS_LEN      8
+#define SX126X_IRQSTATUS_LEN         2
+#define SX126X_CLEARIRQPARAMS_LEN    2
+#define SX126X_RFFREQPARAMS_LEN      4
+#define SX126X_GFSK_MODPARAMS_LEN    8
+#define SX126X_LORA_MODPARAMS_LEN    4
 #define SX126X_GFSK_PACKETPARAMS_LEN 9
 #define SX126X_LORA_PACKETPARAMS_LEN 6
-#define SX126X_RAND_SEED_LEN 16
-#define SX126X_RXBUFFERSTATUS_LEN 2
-#define SX126X_PACKETSTATUS_LEN 3
-#define SX126X_BUFF_BASE_ADDR_LEN 2
+#define SX126X_RAND_SEED_LEN         16
+#define SX126X_RXBUFFERSTATUS_LEN    2
+#define SX126X_PACKETSTATUS_LEN      3
+#define SX126X_BUFF_BASE_ADDR_LEN    2
 
-#define SX126X_NOP 0x00
+#define SX126X_NOP         0x00
 #define SX126X_FIFO_OFFSET 0x00
 
 // ----------------------------------------
@@ -241,7 +241,7 @@ static u1_t randbuf[SX126X_RAND_SEED_LEN];
 // ----------------------------------------
 // Chapter 13.2: Registers and Buffer Access Functions
 // Write one byte `data` to register `addr`
-static void writeRegister (u2_t addr, u1_t data) {
+static void writeRegister(u2_t addr, u1_t data) {
     u1_t addr_buf[SX126X_RW_REGISTER_LEN] = {
         (u1_t)(addr >> 8),
         (u1_t)(addr & 0xff),
@@ -252,7 +252,7 @@ static void writeRegister (u2_t addr, u1_t data) {
 }
 
 // Return one byte from register `addr`
-static u1_t readRegister (u2_t addr) {
+static u1_t readRegister(u2_t addr) {
     u1_t addr_buf[SX126X_RW_REGISTER_LEN] = {
         (u1_t)(addr >> 8),
         (u1_t)(addr & 0xff),
@@ -264,7 +264,7 @@ static u1_t readRegister (u2_t addr) {
 }
 
 // Write `len` bytes from `buf` to the FIFO buffer starting at buffer address `addr`
-static void writeBuffer (u1_t addr, xref2u1_t buf, u1_t len) {
+static void writeBuffer(u1_t addr, xref2u1_t buf, u1_t len) {
     // Set the TX buffer base address. Leave RX base address as 0
     u1_t baseAddr[SX126X_BUFF_BASE_ADDR_LEN] = {addr, 0};
     hal_spi_write(SetBufferBaseAddress, &addr, SX126X_BUFF_BASE_ADDR_LEN);
@@ -280,7 +280,7 @@ static void writeBuffer (u1_t addr, xref2u1_t buf, u1_t len) {
 }
 
 // Read `len` bytes from the FIFO buffer to `buf` from position `offset`
-static void readBuffer (u1_t offset, xref2u1_t buf, u1_t len) {
+static void readBuffer(u1_t offset, xref2u1_t buf, u1_t len) {
     u1_t offset_buf[SX126X_W_BUFFER_LEN] = {
         offset,
         SX126X_NOP,
@@ -346,7 +346,7 @@ static void calibrate(u1_t calibParam) {
     hal_spi_write(Calibrate, &calibParam, SX126X_CALIBPARAM_LEN);
 }
 
-static void calibrateImage( void ) {
+static void calibrateImage(void) {
     u1_t calFreq[2];
 
     // Values from Table 9-2 of data sheet
@@ -383,7 +383,7 @@ static void setPaConfig(u1_t paDutyCycle, u1_t hpMax, u1_t deviceSel, u1_t paLut
 }
 
 // Chapter 13.3: DIO and IRQ Control Functions
-static void setDioIrqParams (u2_t irqMask, u2_t dio1Mask, u2_t dio2Mask, u2_t dio3Mask) {
+static void setDioIrqParams(u2_t irqMask, u2_t dio1Mask, u2_t dio2Mask, u2_t dio3Mask) {
     u1_t irqParams[SX126X_SETIRQPARAMS_LEN] = {
         irqMask >> 8,
         irqMask & 0xFF,
@@ -398,7 +398,7 @@ static void setDioIrqParams (u2_t irqMask, u2_t dio1Mask, u2_t dio2Mask, u2_t di
     hal_spi_write(SetDioIrqParams, irqParams, SX126X_SETIRQPARAMS_LEN);
 }
 
-static u2_t getIrqStatus (void) {
+static u2_t getIrqStatus(void) {
     u1_t nop = SX126X_NOP;
     u1_t buf[SX126X_IRQSTATUS_LEN];
     hal_spi_read_sx126x(GetIrqStatus, &nop, 1, buf, SX126X_IRQSTATUS_LEN);
@@ -406,7 +406,7 @@ static u2_t getIrqStatus (void) {
     return irqStatus;
 }
 
-static void clearIrqStatus (u2_t clearIrqArg) {
+static void clearIrqStatus(u2_t clearIrqArg) {
     u1_t clearIrqParams[SX126X_CLEARIRQPARAMS_LEN] = {
         (u1_t)(clearIrqArg >> 8),
         (u1_t)(clearIrqArg & 0xff),
@@ -415,13 +415,13 @@ static void clearIrqStatus (u2_t clearIrqArg) {
 }
 
 // Allows direct control of RFswitch by SX126x if the hardware supports it
-static void setDio2AsRfSwitchCtrl (void) {
+static void setDio2AsRfSwitchCtrl(void) {
     u1_t enable = 0x01;
     hal_spi_write(SetDIO2AsRfSwitchCtrl, &enable, 1);
 }
 
 // Allows direct control of TCXO by SX126x if the hardware supports it
-static void setDIO3AsTcxoCtrl (float tcxoVoltage, u1_t delay[SX126X_TIMEOUT_LEN]) {
+static void setDIO3AsTcxoCtrl(float tcxoVoltage, u1_t delay[SX126X_TIMEOUT_LEN]) {
     u1_t tcxoVoltage_int = tcxoVoltage * 10;
     u1_t voltageParam;
     u1_t setDio3AsTcxoParam[SX126X_TIMEOUT_LEN + 1];
@@ -465,7 +465,7 @@ static void setDIO3AsTcxoCtrl (float tcxoVoltage, u1_t delay[SX126X_TIMEOUT_LEN]
 
 // Chapter 13.4: RF Modulation and Packet-Related Functions
 
-static void setRfFrequency (void) {
+static void setRfFrequency(void) {
     // set frequency: freq = (rfFreq * 32 Mhz) / (2 ^ 25)
     u4_t rfFreq = ((uint64_t)LMIC.freq << 25) / 32000000;
     u1_t rfFreqParam[SX126X_RFFREQPARAMS_LEN] = {
@@ -478,11 +478,11 @@ static void setRfFrequency (void) {
     hal_spi_write(SetRfFrequency, rfFreqParam, SX126X_RFFREQPARAMS_LEN);
 }
 
-static void setPacketType (u1_t packetType) {
+static void setPacketType(u1_t packetType) {
     hal_spi_write(SetPacketType, &packetType, 1);
 }
 
-static u1_t getPacketType (void) {
+static u1_t getPacketType(void) {
     u1_t nop = SX126X_NOP;
     u1_t buf;
     hal_spi_read_sx126x(GetPacketType, &nop, 1, &buf, 1);
@@ -504,7 +504,7 @@ static u1_t getPacketType (void) {
 // Note that the documentation contains a greater number of optimal setPaConfig
 // params than is used here. This might become a TODO, to implement the rest of
 // the optimal setPaParams
-static void setTxParams (void) {
+static void setTxParams(void) {
     s1_t setTxPower = LMIC.radio_txpow;
     #ifdef CFG_sx1261_radio
     if (setTxPower == 15) {
@@ -540,7 +540,7 @@ static void setTxParams (void) {
 }
 
 // The `setModulationParams` function can largely reuse `configLoraModem` from original radio.c
-static void setModulationParams (u1_t packetType) {
+static void setModulationParams(u1_t packetType) {
     if (packetType == PACKET_TYPE_LORA) {
         
         // LoRa packet type only expects 4 bytes
@@ -616,14 +616,14 @@ static void setModulationParams (u1_t packetType) {
 
         // To ensure correct demodulation, the following limit must be respected for the selection of the bandwidth:
         // (2 * Fdev + BR) < BW
-        // CHECK: 2 * 0x5D21 + 0x5000 = 0x010A42 (passes test)
+        // CHECK: 2 * 0x5D21 + 0x5000 = 0x010A42 (therefore RX_BW_78200 is the lowest BW that passes test)
 
         hal_spi_write(SetModulationParams, modParams, SX126X_GFSK_MODPARAMS_LEN);
     }
 }
 
 // The `setPacketParams` function sets several parameters that the original radio.c achieved using individual writeReg calls
-static void setPacketParams (u1_t packetType, u1_t frameLength, u1_t invertIQ) {
+static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
     if (packetType == PACKET_TYPE_LORA) {
         
         // LoRa packet type only expects 6 bytes
@@ -638,15 +638,6 @@ static void setPacketParams (u1_t packetType, u1_t frameLength, u1_t invertIQ) {
         if (getIh(LMIC.rps)) {
             packetParams[2] = SX126x_IMPLICIT_HEADER_ON;
         }
-
-        // !! From documents:
-        //
-        // When the byte headerType is at 0x00 (explicit), the payload length, coding rate and the header CRC will be
-        // added to the LoRa header and transported to the receiver.
-        //
-        // To test if setting the params 4, 5 and 6 is harmful in explicit mode. Not sure yet if this means that this
-        // should all be captured in an else block? !!
-
 
         // LoRa PacketParam4, 5, 6 - PayloadLength, CRC, Invert IQ in RX
         packetParams[3] = frameLength;
@@ -714,7 +705,7 @@ static void setPacketParams (u1_t packetType, u1_t frameLength, u1_t invertIQ) {
 }
 
 // Sets base address for TX and RX as 0x00. Possible to set to other values, but we're not using that in this implementation
-static void setBufferBaseAddress (void) {
+static void setBufferBaseAddress(void) {
     u1_t buf[2] = {
         0x00, // TX base address
         0x00 // RX base address
@@ -722,7 +713,7 @@ static void setBufferBaseAddress (void) {
     hal_spi_write(SetBufferBaseAddress, buf, 2);
 }
 
-static void setLoRaSymbNumTimeout (void) {
+static void setLoRaSymbNumTimeout(void) {
     u1_t buf = {(u1_t)LMIC.rxsyms};
     hal_spi_write(SetLoRaSymbNumTimeout, &buf, 1);
 }
@@ -730,36 +721,36 @@ static void setLoRaSymbNumTimeout (void) {
 // Chapter 13.5: Communication Status Information
 
 // Chip mode is (getStatus | 0x70)
-static u1_t getStatus (void) {
+static u1_t getStatus(void) {
     u1_t status;
     hal_spi_read_sx126x(GetStatus, NULL, 0, &status, 1);
     return status;
 }
 
-static void getDeviceErrors (xref2cu1_t errorBuf) {
+static void getDeviceErrors(xref2cu1_t errorBuf) {
     u1_t nop = SX126X_NOP;
     u1_t errors[2];
     hal_spi_read_sx126x(GetDeviceErrors, &nop, 1, errors, 2);
 }
 
-static void clearDeviceErrors (void) {
+static void clearDeviceErrors(void) {
     u1_t buf[2] = {0};
     hal_spi_write(ClearDeviceErrors, buf, 2);
 }
 
-static void getRxBufferStatus (xref2u1_t rxBufferStatus) {
+static void getRxBufferStatus(xref2u1_t rxBufferStatus) {
     u1_t nop = SX126X_NOP;
     hal_spi_read_sx126x(GetRxBufferStatus, &nop, 1, rxBufferStatus, SX126X_RXBUFFERSTATUS_LEN);
 }
 
-static void getPacketStatus (xref2u1_t rxBufferStatus) {
+static void getPacketStatus(xref2u1_t rxBufferStatus) {
     u1_t nop = SX126X_NOP;
     u1_t buf[SX126X_PACKETSTATUS_LEN];
     hal_spi_read_sx126x(GetPacketStatus, &nop, 1, buf, SX126X_PACKETSTATUS_LEN);
 }
 
 // Perform radio configuration commands required at the start of tx and rx
-void radio_config (void) {
+void radio_config(void) {
     // Perform necessary operations from STDBY_RC mode 
     if ((getStatus() | SX126x_GETSTATUS_CHIPMODE_MASK) != SX126x_CHIPMODE_STDBY_RC) {
         // Assume we've woken from sleep
@@ -790,7 +781,6 @@ void radio_config (void) {
         calibrateImage();
         // Clear any errors. If using TCXO an error will appear
         clearDeviceErrors();
-    
     }
 
     // Return to standby, using the 32MHz oscillator
@@ -798,7 +788,7 @@ void radio_config (void) {
 }
 
 // Chapter 14.2: Circuit configuration for basic tx operation
-static void txlora () {
+static void txlora(void) {
     // Send configuration commands to radio
     radio_config();
     setPacketType(PACKET_TYPE_LORA);
@@ -850,7 +840,7 @@ static void txlora () {
 #endif
 }
 
-static void txfsk () {
+static void txfsk(void) {
     // Send configuration commands to radio
     radio_config();
     setPacketType(PACKET_TYPE_GFSK);
@@ -887,7 +877,7 @@ static void txfsk () {
 }
 
 // start transmitter (buf=LMIC.frame, len=LMIC.dataLen)
-static void starttx () {
+static void starttx(void) {
     // SX127x sets sleep however this doesn't appear to be necessary for SX126x
     setStandby(STDBY_RC);
 
@@ -927,7 +917,7 @@ static CONST_TABLE(u2_t, rxlorairqmask)[] = {
 //! \details If nLate is non-zero, increment the count of events, totalize
 //! the number of ticks late, and (if implemented) adjust the estimate of
 //! what would be best to return from `os_getRadioRxRampup()`.
-static void rxlate (u4_t nLate) {
+static void rxlate(u4_t nLate) {
     if (nLate) {
         LMIC.radio.rxlate_ticks += nLate;
         ++LMIC.radio.rxlate_count;
@@ -936,7 +926,7 @@ static void rxlate (u4_t nLate) {
 
 // start LoRa receiver (time=LMIC.rxtime, timeout=LMIC.rxsyms, result=LMIC.frame[LMIC.dataLen])
 // Chapter 14.3: Circuit configuration for basic rx operation
-static void rxlora (u1_t rxmode) {
+static void rxlora(u1_t rxmode) {
     // Send configuration commands to radio
     radio_config();
     setPacketType(PACKET_TYPE_LORA);
@@ -1014,7 +1004,7 @@ static void rxlora (u1_t rxmode) {
 #endif
 }
 
-static void rxfsk (u1_t rxmode) {
+static void rxfsk(u1_t rxmode) {
     // only single or continuous rx (no noise sampling)
     if (rxmode == RXMODE_SCAN) {
         // indicate no bytes received.
@@ -1067,19 +1057,16 @@ static void rxfsk (u1_t rxmode) {
     }
 }
 
-static void startrx (u1_t rxmode) {
+static void startrx(u1_t rxmode) {
     // SX127x does an assert to make sure modem is in sleep. SX126x uses standby as base mode.
     // For this driver, we force mode change, rather than assert
     setStandby(STDBY_RC);
 
-    rxlora(rxmode);
-
-    // FSK is not implemented
-    /*if(getSf(LMIC.rps) == FSK) { // FSK modem
+    if(getSf(LMIC.rps) == FSK) { // FSK modem
         rxfsk(rxmode);
     } else { // LoRa modem
         rxlora(rxmode);
-    }*/
+    }
     // the radio will go back to STANDBY mode as soon as the RX is finished
     // or timed out, and the corresponding IRQ will inform us about completion.
 }
@@ -1138,7 +1125,7 @@ static void requestModuleActive(bit_t state) {
 //!
 //! Generally, all these are satisfied by a call to `hal_init_with_pinmap()`.
 //!
-int radio_init () {
+int radio_init(void) {
     requestModuleActive(1);
 
     // manually reset radio
@@ -1168,7 +1155,7 @@ int radio_init () {
 
 // return next random byte derived from seed buffer
 // (buf[0] holds index of next byte to be returned)
-u1_t radio_rand1 () {
+u1_t radio_rand1(void) {
     u1_t i = randbuf[0];
     ASSERT( i != 0 );
     if(i == 16) {
@@ -1181,7 +1168,7 @@ u1_t radio_rand1 () {
 }
 
 // This function does not appear to be in use but is declared in the oslmic.h header file
-u1_t radio_rssi () {
+u1_t radio_rssi(void) {
     u1_t buf;
     u1_t nop = SX126X_NOP;
     hal_spi_read_sx126x(GetRssiInst, &nop, 1, &buf, 1);
@@ -1198,12 +1185,6 @@ u1_t radio_rssi () {
 
     return buf;
 }
-
-/* NOT IMPLEMENTED:
-static void setupFskRxTx(bit_t fDisableAutoClear);
-static void txfsk ();
-static void rxfsk (u1_t rxmode)
-*/
 
 /// \brief get the current RSSI on the current channel.
 ///
@@ -1285,16 +1266,16 @@ static CONST_TABLE(u2_t, LORA_RXDONE_FIXUP)[] = {
 
 // called by hal ext IRQ handler
 // (radio goes to stanby mode after tx/rx operations)
-void radio_irq_handler (u1_t dio) {
+void radio_irq_handler(u1_t dio) {
     radio_irq_handler_v2(dio, os_getTime());
 }
 
-void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
+void radio_irq_handler_v2(u1_t dio, ostime_t now) {
     LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ handler, dio=%d\n", os_getTime(), dio);
     LMIC_API_PARAMETER(dio);
 
 #if CFG_TxContinuousMode
-    // TxContinuosMode NOT IMPLEMENTED for SX126x.
+    // TxContinuosMode NOT IMPLEMENTED for this SX126x driver.
     ASSERT(0);
 #else /* ! CFG_TxContinuousMode */
 
@@ -1319,17 +1300,17 @@ void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
 
     LMIC.saveIrqFlags = flags;
 
-    if(getPacketType() == PACKET_TYPE_LORA) { // LORA modem
+    if (getPacketType() == PACKET_TYPE_LORA) { // LORA modem
         LMICOS_logEventUint32("radio_irq_handler_v2: LoRa", flags);
         LMIC_X_DEBUG_PRINTF("IRQ=%02x\n", flags);
         LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ rawFlags=%04X\n", os_getTime(), rawFlags);
         LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ flags=%02X\n", os_getTime(), flags);
-        if( flags & IRQ_LORA_TXDONE_MASK ) {
+        if (flags & IRQ_LORA_TXDONE_MASK) {
             // save exact tx time
             LMIC.txend = now - us2osticks(43); // TXDONE FIXUP
-        } else if( flags & IRQ_LORA_RXDONE_MASK ) {
+        } else if (flags & IRQ_LORA_RXDONE_MASK) {
             // save exact rx time
-            if(getBw(LMIC.rps) == BW125) {
+            if (getBw(LMIC.rps) == BW125) {
                 now -= TABLE_GET_U2(LORA_RXDONE_FIXUP, getSf(LMIC.rps));
             }
             LMIC.rxtime = now;
@@ -1352,7 +1333,7 @@ void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
             LMIC.rssi = (s1_t) (RSSI_OFF + (rssi < -196 ? -196 : rssi > 63 ? 63 : rssi)); // RSSI [dBm] (-196...+63)
             LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": RXpacket, len=%d, offset=%d\n", os_getTime(), rxBufferStatusRaw[0], rxBufferStatusRaw[1]);
             LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": RXpacket, rssi=%d, snr=%d\n", os_getTime(), rssi, LMIC.snr / 4);
-        } else if( flags & IRQ_LORA_RXTOUT_MASK ) {
+        } else if (flags & IRQ_LORA_RXTOUT_MASK) {
             // indicate timeout
             LMIC.dataLen = 0;
 #if LMIC_DEBUG_LEVEL > 0
@@ -1367,10 +1348,10 @@ void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
         LMIC_X_DEBUG_PRINTF("IRQ=%02x\n", flags);
         LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ rawFlags=%04X\n", os_getTime(), rawFlags);
         LMIC_DEBUG_PRINTF("%"LMIC_PRId_ostime_t": IRQ flags=%02X\n", os_getTime(), flags);
-        if( flags & IRQ_LORA_TXDONE_MASK ) {
+        if (flags & IRQ_LORA_TXDONE_MASK) {
             // save exact tx time
             LMIC.txend = now;
-        } else if( flags & IRQ_LORA_RXDONE_MASK ) {
+        } else if (flags & IRQ_LORA_RXDONE_MASK) {
             // save exact rx time
             LMIC.rxtime = now;
             // read the PDU and inform the MAC that we received something
@@ -1385,7 +1366,7 @@ void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
             u1_t const rRssi = packetStatusRaw[2]; // - RSSI [dB] * 2
             s2_t rssi = -rRssi / 2;
             LMIC.rssi = (s1_t) (RSSI_OFF + (rssi < -196 ? -196 : rssi > 63 ? 63 : rssi)); // RSSI [dBm] (-196...+63)
-        } else if( flags & IRQ_LORA_RXTOUT_MASK ) {
+        } else if (flags & IRQ_LORA_RXTOUT_MASK) {
             // indicate timeout
             LMIC.dataLen = 0;
         } else {
@@ -1435,7 +1416,7 @@ which will cause `LMIC.osjob` to be scheduled with its current function.
 
 */
 
-void os_radio (u1_t mode) {
+void os_radio(u1_t mode) {
     switch (mode) {
       case RADIO_RST:
         // put radio to sleep. Sleep needs to be entered from standby_RC mode 
@@ -1469,7 +1450,7 @@ void os_radio (u1_t mode) {
     }
 }
 
-ostime_t os_getRadioRxRampup (void) {
+ostime_t os_getRadioRxRampup(void) {
     return RX_RAMPUP_DEFAULT + us2osticks(12480); // SX126x is 780 ticks slower than SX127x to wake from sleep @ 240MHz
 }
 #endif
