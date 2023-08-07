@@ -33,6 +33,7 @@
 #include "lmic.h"
 
 #if (CFG_sx1261_radio || CFG_sx1262_radio)
+// This driver is based on Rev. 2.1 of the Semtech SX1261/2 Data Sheet DS.SX1261-2.W.APP
 // ----------------------------------------
 // Command Mapping        **  Chapter 11 List of Commands
 #define ResetStats                                 0x00
@@ -83,15 +84,16 @@
 #define PacketLength                               0x0386
 #define NbHoppingBlocks                            0x0387
 // Appears that there are 16 NbSymbols and Freq registers, on sequential bytes
-// First and last are defined here. TODO macro to define the rest if I actually use them
+// First and last are defined here. TODO define the rest if they are actually in use.
+// Each is over multiple bytes so will also need to be split out to MSB, LSB
 #define NbSymbols0                                 0x0388 // 2 bytes 0x0388 - 0x0389
 #define Freq0                                      0x038A // 4 bytes 0x038A - 0x038D
 #define NbSymbols15                                0x03E2 // 2 bytes 0x03E2 - 0x03E3
 #define Freq15                                     0x03E4 // 4 bytes 0x03E4 - 0x03E7
-#define DIOxOutputEnable                           0x0580 // Reset Value 0x00 - Use only with Semtech-provided code samples
-#define DIOxInputEnable                            0x0583 // Reset Value 0x00 - Use only with Semtech-provided code samples
-#define DIOxPullupControl                          0x0584 // Reset Value 0x00 - Use only with Semtech-provided code samples
-#define DIOxPulldownControl                        0x0585 // Reset Value 0x00 - Use only with Semtech-provided code samples
+#define DIOxOutputEnable                           0x0580 // Use only with Semtech-provided code samples
+#define DIOxInputEnable                            0x0583 // Use only with Semtech-provided code samples
+#define DIOxPullupControl                          0x0584 // Use only with Semtech-provided code samples
+#define DIOxPulldownControl                        0x0585 // Use only with Semtech-provided code samples
 #define WhiteningInitialMSB                        0x06B8 // Reset Value 0xX1 Note: X is an undefined value
 #define WhiteningInitialLSB                        0x06B9 // Reset Value 0x00
 #define CRCInitialMSB                              0x06BC // Reset Value 0x1D
@@ -109,16 +111,16 @@
 #define NodeAddress                                0x06CD // Reset Value 0x00
 #define BroadcastAddress                           0x06CE // Reset Value 0x00
 #define IQPolaritySetup                            0x0736 // Reset Value 0x0D
-#define LoRaSyncWordMSB                            0x0740 // Reset Value 0x14
-#define LoRaSyncWordLSB                            0x0741 // Reset Value 0x24 - Differentiate the LoRa signal for Public (0x3444) or Private (0x1424) networks
+#define LoRaSyncWordMSB                            0x0740 // Reset Value 0x14 (Private network). Set to 0x34 for Public Network
+#define LoRaSyncWordLSB                            0x0741 // Reset Value 0x24  (Private network). Set to 0x44 for Public Network
 #define RandomNumberGen0                           0x0819 // Can be used to generate a 32-bit random number
 #define RandomNumberGen1                           0x081A // Can be used to generate a 32-bit random number
 #define RandomNumberGen2                           0x081B // Can be used to generate a 32-bit random number
 #define RandomNumberGen3                           0x081C // Can be used to generate a 32-bit random number
 #define TxModulation                               0x0889 // Reset Value 0x01
-#define RxGain                                     0x08AC // Reset Value 0x94 - Rx Power Saving Gain 0x94, Rx Power Saving Gain 0x96
+#define RxGain                                     0x08AC // Reset Value 0x94 (Rx Power Saving Gain). Set to 0x96 for Rx Power Boost
 #define TxClampConfig                              0x08D8 // Reset Value 0xC8
-#define OCPConfig                                  0x08E7 // Reset Value 0x18 - SX1262 0x38, SX1261: 0x18
+#define OCPConfig                                  0x08E7 // Reset Value for SX1261 = 0x18,  SX1262 = 0x38
 #define RTCControl                                 0x0902 // Reset Value 0x00 - Use only with Semtech-provided workaround of Section 15.3
 #define XTATrim                                    0x0911 // Reset Value 0x05
 #define XTBTrim                                    0x0912 // Reset Value 0x05
@@ -240,7 +242,6 @@ static u1_t randbuf[SX126X_RAND_SEED_LEN];
 // Chapter 13.2: Registers and Buffer Access Functions
 // Write one byte `data` to register `addr`
 static void writeRegister (u2_t addr, u1_t data) {
-    
     u1_t addr_buf[SX126X_RW_REGISTER_LEN] = {
         (u1_t)(addr >> 8),
         (u1_t)(addr & 0xff),
@@ -252,7 +253,6 @@ static void writeRegister (u2_t addr, u1_t data) {
 
 // Return one byte from register `addr`
 static u1_t readRegister (u2_t addr) {
-    
     u1_t addr_buf[SX126X_RW_REGISTER_LEN] = {
         (u1_t)(addr >> 8),
         (u1_t)(addr & 0xff),
@@ -265,7 +265,6 @@ static u1_t readRegister (u2_t addr) {
 
 // Write `len` bytes from `buf` to the FIFO buffer starting at buffer address `addr`
 static void writeBuffer (u1_t addr, xref2u1_t buf, u1_t len) {
-    
     // Set the TX buffer base address. Leave RX base address as 0
     u1_t baseAddr[SX126X_BUFF_BASE_ADDR_LEN] = {addr, 0};
     hal_spi_write(SetBufferBaseAddress, &addr, SX126X_BUFF_BASE_ADDR_LEN);
@@ -282,8 +281,6 @@ static void writeBuffer (u1_t addr, xref2u1_t buf, u1_t len) {
 
 // Read `len` bytes from the FIFO buffer to `buf` from position `offset`
 static void readBuffer (u1_t offset, xref2u1_t buf, u1_t len) {
-    
-    // TODO ensure that this function handles errors for any len > 255, or all calls to the function explicitly manage this
     u1_t offset_buf[SX126X_W_BUFFER_LEN] = {
         offset,
         SX126X_NOP,
@@ -293,12 +290,12 @@ static void readBuffer (u1_t offset, xref2u1_t buf, u1_t len) {
 }
 
 // Chapter 13.1: Operational Modes Functions
-// For SX126x API, it seems easier to manage the modes and parameters individually
+// These functions have been developed to reflect the SX126x API
 
 // Accepts 1 byte to choose warm or cold start and interrupt type. Default 0x00 for cold start
-// TODO setup state machine to prevent stupid calls to set status constantly to check sleep
+// TODO setup state machine to prevent the device from waking if it's already asleep
 static void setSleep(u1_t sleepConfig) {
-    // TODO sleepConfig can be modified to allow warm start and set an RTC timeout
+    // MISSING FUNCTIONALITY sleepConfig can be modified to allow warm start and set an RTC timeout
     // default coldstart sleepConfig = 0x00;
     hal_spi_write(SetSleep, &sleepConfig, SX126X_SLEEPCONFIG_LEN);
 }
@@ -312,12 +309,12 @@ static void setFs(void) {
     hal_spi_write(SetFs, NULL, 0);
 }
 
-// TODO handle the bit bashing in these functions rather than the tx/rx functions
+// TODO handle the bit bashing as a macro to allow functions to be called with ms rather than 3 bytes
 static void setTx(u1_t timeout[SX126X_TIMEOUT_LEN]) {
     hal_spi_write(SetTx, timeout, SX126X_TIMEOUT_LEN);
 }
 
-// TODO handle the bit bashing in these functions rather than the tx/rx functions
+// TODO handle the bit bashing as a macro to allow functions to be called with ms rather than 3 bytes
 static void setRx(u1_t timeout[SX126X_TIMEOUT_LEN]) {
     hal_spi_write(SetRx, timeout, SX126X_TIMEOUT_LEN);
 
@@ -350,7 +347,6 @@ static void calibrate(u1_t calibParam) {
 }
 
 static void calibrateImage( void ) {
-
     u1_t calFreq[2];
 
     // Values from Table 9-2 of data sheet
@@ -376,7 +372,6 @@ static void calibrateImage( void ) {
 }
 
 static void setPaConfig(u1_t paDutyCycle, u1_t hpMax, u1_t deviceSel, u1_t paLut) {
-
     u1_t paConfigParam[SX126X_PACONFIGPARAM_LEN] = {
         paDutyCycle,
         hpMax,
@@ -389,7 +384,6 @@ static void setPaConfig(u1_t paDutyCycle, u1_t hpMax, u1_t deviceSel, u1_t paLut
 
 // Chapter 13.3: DIO and IRQ Control Functions
 static void setDioIrqParams (u2_t irqMask, u2_t dio1Mask, u2_t dio2Mask, u2_t dio3Mask) {
-    
     u1_t irqParams[SX126X_SETIRQPARAMS_LEN] = {
         irqMask >> 8,
         irqMask & 0xFF,
@@ -405,7 +399,6 @@ static void setDioIrqParams (u2_t irqMask, u2_t dio1Mask, u2_t dio2Mask, u2_t di
 }
 
 static u2_t getIrqStatus (void) {
-    
     u1_t nop = SX126X_NOP;
     u1_t buf[SX126X_IRQSTATUS_LEN];
     hal_spi_read_sx126x(GetIrqStatus, &nop, 1, buf, SX126X_IRQSTATUS_LEN);
@@ -414,7 +407,6 @@ static u2_t getIrqStatus (void) {
 }
 
 static void clearIrqStatus (u2_t clearIrqArg) {
-
     u1_t clearIrqParams[SX126X_CLEARIRQPARAMS_LEN] = {
         (u1_t)(clearIrqArg >> 8),
         (u1_t)(clearIrqArg & 0xff),
@@ -422,17 +414,14 @@ static void clearIrqStatus (u2_t clearIrqArg) {
     hal_spi_write(ClearIrqStatus, clearIrqParams, SX126X_CLEARIRQPARAMS_LEN);
 }
 
+// Allows direct control of RFswitch by SX126x if the hardware supports it
 static void setDio2AsRfSwitchCtrl (void) {
-    
-    // TODO can expand to allow the DIO to also be used as IRQ if enable bit is set to 0x01
     u1_t enable = 0x01;
     hal_spi_write(SetDIO2AsRfSwitchCtrl, &enable, 1);
 }
 
-// TODO It may make sense to move this to getpinmap for consistency with existing API.
-// requestModuleActive in old radio.c calls this function by reaching in to the HAL
+// Allows direct control of TCXO by SX126x if the hardware supports it
 static void setDIO3AsTcxoCtrl (float tcxoVoltage, u1_t delay[SX126X_TIMEOUT_LEN]) {
-
     u1_t tcxoVoltage_int = tcxoVoltage * 10;
     u1_t voltageParam;
     u1_t setDio3AsTcxoParam[SX126X_TIMEOUT_LEN + 1];
@@ -476,9 +465,7 @@ static void setDIO3AsTcxoCtrl (float tcxoVoltage, u1_t delay[SX126X_TIMEOUT_LEN]
 
 // Chapter 13.4: RF Modulation and Packet-Related Functions
 
-// Similar to existing configChannel function
 static void setRfFrequency (void) {
-    
     // set frequency: freq = (rfFreq * 32 Mhz) / (2 ^ 25)
     u4_t rfFreq = ((uint64_t)LMIC.freq << 25) / 32000000;
     u1_t rfFreqParam[SX126X_RFFREQPARAMS_LEN] = {
@@ -518,7 +505,6 @@ static u1_t getPacketType (void) {
 // params than is used here. This might become a TODO, to implement the rest of
 // the optimal setPaParams
 static void setTxParams (void) {
-
     s1_t setTxPower = LMIC.radio_txpow;
     #ifdef CFG_sx1261_radio
     if (setTxPower == 15) {
@@ -555,7 +541,6 @@ static void setTxParams (void) {
 
 // The `setModulationParams` function can largely reuse `configLoraModem` from original radio.c
 static void setModulationParams (u1_t packetType) {
-    
     if (packetType == PACKET_TYPE_LORA) {
         
         // LoRa packet type only expects 4 bytes
@@ -602,14 +587,13 @@ static void setModulationParams (u1_t packetType) {
         hal_spi_write(SetModulationParams, modParams, SX126X_LORA_MODPARAMS_LEN);
 
     } else {
-        // GFSK portion not implemented yet
+        // TODO GFSK portion not implemented yet
         ASSERT(0);
     }
 }
 
 // The `setPacketParams` function sets several parameters that the original radio.c achieved using individual writeReg calls
 static void setPacketParams (u1_t packetType, u1_t frameLength, u1_t invertIQ) {
-    
     if (packetType == PACKET_TYPE_LORA) {
         
         // LoRa packet type only expects 6 bytes
@@ -656,6 +640,7 @@ static void setPacketParams (u1_t packetType, u1_t frameLength, u1_t invertIQ) {
     }
 }
 
+// Sets base address for TX and RX as 0x00. Possible to set to other values, but we're not using that in this implementation
 static void setBufferBaseAddress (void) {
     u1_t buf[2] = {
         0x00, // TX base address
@@ -679,26 +664,22 @@ static u1_t getStatus (void) {
 }
 
 static void getDeviceErrors (xref2cu1_t errorBuf) {
-
     u1_t nop = SX126X_NOP;
     u1_t errors[2];
     hal_spi_read_sx126x(GetDeviceErrors, &nop, 1, errors, 2);
 }
 
 static void clearDeviceErrors (void) {
-    
     u1_t buf[2] = {0};
     hal_spi_write(ClearDeviceErrors, buf, 2);
 }
 
 static void getRxBufferStatus (xref2u1_t rxBufferStatus) {
-
     u1_t nop = SX126X_NOP;
     hal_spi_read_sx126x(GetRxBufferStatus, &nop, 1, rxBufferStatus, SX126X_RXBUFFERSTATUS_LEN);
 }
 
 static void getPacketStatus (xref2u1_t rxBufferStatus) {
-    
     u1_t nop = SX126X_NOP;
     u1_t buf[SX126X_PACKETSTATUS_LEN];
     hal_spi_read_sx126x(GetPacketStatus, &nop, 1, buf, SX126X_PACKETSTATUS_LEN);
@@ -706,7 +687,6 @@ static void getPacketStatus (xref2u1_t rxBufferStatus) {
 
 // Perform radio configuration commands required at the start of tx and rx
 void radio_config (void) {
-
     // Perform necessary operations from STDBY_RC mode 
     if ((getStatus() | SX126x_GETSTATUS_CHIPMODE_MASK) != SX126x_CHIPMODE_STDBY_RC) {
         // Assume we've woken from sleep
@@ -746,7 +726,6 @@ void radio_config (void) {
 
 // Chapter 14.2: Circuit configuration for basic tx operation
 static void txlora () {
-    
     // Send configuration commands to radio
     radio_config();
     setPacketType(PACKET_TYPE_LORA);
@@ -852,7 +831,6 @@ static void rxlate (u4_t nLate) {
 // start LoRa receiver (time=LMIC.rxtime, timeout=LMIC.rxsyms, result=LMIC.frame[LMIC.dataLen])
 // Chapter 14.3: Circuit configuration for basic rx operation
 static void rxlora (u1_t rxmode) {
-    
     // Send configuration commands to radio
     radio_config();
     setPacketType(PACKET_TYPE_LORA);
@@ -933,7 +911,6 @@ static void rxlora (u1_t rxmode) {
 }
 
 static void startrx (u1_t rxmode) {
-    
     // SX127x does an assert to make sure modem is in sleep. SX126x uses standby as base mode.
     // For this driver, we force mode change, rather than assert
     setStandby(STDBY_RC);
@@ -952,7 +929,6 @@ static void startrx (u1_t rxmode) {
 
 // Get random seed from registers
 void randomNumber(xref2u1_t randbuf) {
-
     // Send configuration commands to radio
     radio_config();
             
@@ -1320,6 +1296,6 @@ void os_radio (u1_t mode) {
 }
 
 ostime_t os_getRadioRxRampup (void) {
-    return RX_RAMPUP_DEFAULT + 780; // 780 ticks for wake sleep, DIO3 timeout, calibrate
+    return RX_RAMPUP_DEFAULT + us2osticks(12480); // SX126x is 780 ticks slower than SX127x to wake from sleep @ 240MHz
 }
 #endif
