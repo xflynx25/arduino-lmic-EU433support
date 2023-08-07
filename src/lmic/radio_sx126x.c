@@ -1031,7 +1031,7 @@ static void rxfsk (u1_t rxmode) {
     setBufferBaseAddress();
     
     setModulationParams(PACKET_TYPE_GFSK);
-    setPacketParams(PACKET_TYPE_GFSK, MAX_LEN_FRAME, NULL);
+    setPacketParams(PACKET_TYPE_GFSK, MAX_LEN_FRAME, 0);
 
     // Rx Boosted gain. Default is Rx Power saving. Uncomment if boosted is desired
     // writeRegister(RxGain, (readRegister(RxGain) | 0x96));
