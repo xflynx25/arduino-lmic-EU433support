@@ -189,7 +189,7 @@ static void hal_spi_init () {
 
 #if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
 bit_t is_busy() {
-    // SX1262 uses BUSY pin
+    // SX126x uses BUSY pin
     return digitalRead(pHalConfig->queryBusyPin()) ? true : false;
 }
 #endif
@@ -205,7 +205,7 @@ static void hal_spi_trx(u1_t cmd, u1_t* buf, size_t len, bit_t is_read) {
     SPI.beginTransaction(settings);
     digitalWrite(nss, 0);
 
-    // SX1262 modems use BUSY pin. Only interact with SPI when BUSY goes LOW 
+    // SX126x modems use BUSY pin. Only interact with SPI when BUSY goes LOW 
 #if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
     while (is_busy());
 #endif
@@ -231,10 +231,8 @@ void hal_spi_read(u1_t cmd, u1_t* buf, size_t len) {
     hal_spi_trx(cmd, buf, len, 1);
 }
 
-// TODO manage this API for modem type. It may come to pass that a separate header file is needed
-// TODO confirm if it's ever necessary to handle an addr of any length other than 3
-// Currently ignores anything other than a 2 byte register address
-// Might need to abstract further if the pattern for 
+// SX126x modems behave slightly differently to SX127x. They will often need to transfer multiple bytes before reading
+#if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
 void hal_spi_read_sx126x(u1_t cmd, u1_t* addr, size_t addr_len, u1_t* buf, size_t buf_len) {
     uint32_t spi_freq;
     u1_t nss = plmic_pins->nss;
@@ -266,6 +264,7 @@ void hal_spi_read_sx126x(u1_t cmd, u1_t* addr, size_t addr_len, u1_t* buf, size_
     digitalWrite(nss, 1);
     SPI.endTransaction();
 }
+#endif
 
 // -----------------------------------------------------------------------------
 // TIME
