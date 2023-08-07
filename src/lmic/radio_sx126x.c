@@ -1385,7 +1385,7 @@ void radio_irq_handler_v2 (u1_t dio, ostime_t now) {
             u1_t const rRssi = packetStatusRaw[2]; // - RSSI [dB] * 2
             s2_t rssi = -rRssi / 2;
             LMIC.rssi = (s1_t) (RSSI_OFF + (rssi < -196 ? -196 : rssi > 63 ? 63 : rssi)); // RSSI [dBm] (-196...+63)
-        } else if( flags1 & IRQ_LORA_RXTOUT_MASK ) {
+        } else if( flags & IRQ_LORA_RXTOUT_MASK ) {
             // indicate timeout
             LMIC.dataLen = 0;
         } else {
