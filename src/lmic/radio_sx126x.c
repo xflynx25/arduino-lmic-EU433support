@@ -194,9 +194,10 @@
 // ----------------------------------------
 // LoRa Packet Params        **  Chapter 13 SetPacketParams
 #define SX126x_IMPLICIT_HEADER_ON 0x01
-#define CRC_CCIT_CONFIGURATION
+#define CRC_CCIT_CONFIGURATION    1
 #define CRC_CCIT_SEED             0x1D0F
 #define CRC_CCIT_POLY             0x1021
+#define CRC_IBM_CONFIGURATION     0
 #define CRC_IBM_SEED              0xFFFF
 #define CRC_IBM_POLY              0x8005
 #define CRC_OFF                   0x00
@@ -687,7 +688,7 @@ static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
 
         // Section 6.2.3.5 of the Data Sheet
         // GFSK PacketParam8 - CRCType - Default values are CCIT, but must be overwritten if IBM CRC is used
-        if (CRC_IBM_CONFIGURATION) {
+        if (CRC_IBM_CONFIGURATION == 1) {
             writeRegister(CRCInitialMSB, (u1_t) ((CRC_IBM_SEED >> 8) & 0xFF));
             writeRegister(CRCInitialLSB, (u1_t) (CRC_IBM_SEED & 0xFF));
             writeRegister(CRCPolynomialMSB, (u1_t) ((CRC_IBM_POLY >> 8) & 0xFF));
