@@ -706,6 +706,7 @@ static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
         writeRegister(SyncWord0, 0xC1);
         writeRegister(SyncWord1, 0x94);
         writeRegister(SyncWord2, 0xC1);
+        writeRegister(WhiteningInitialLSB, 0xFF);
 
         // Keep default values for whitening
     } else {
