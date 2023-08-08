@@ -194,6 +194,16 @@
 // ----------------------------------------
 // LoRa Packet Params        **  Chapter 13 SetPacketParams
 #define SX126x_IMPLICIT_HEADER_ON 0x01
+#define CRC_CCIT_CONFIGURATION
+#define CRC_CCIT_SEED             0x1D0F
+#define CRC_CCIT_POLY             0x1021
+#define CRC_IBM_SEED              0xFFFF
+#define CRC_IBM_POLY              0x8005
+#define CRC_OFF                   0x00
+#define CRC_1_BYTE                0x01
+#define CRC_2_BYTE                0x02
+#define CRC_1_BYTE_INV            0x04
+#define CRC_2_BYTE_INV            0x06
 
 // ----------------------------------------
 // GetStatus        **  Chapter 13 GetStatus
@@ -543,7 +553,6 @@ static void setTxParams(void) {
 static void setModulationParams(u1_t packetType) {
     if (packetType == PACKET_TYPE_LORA) {
         
-        // LoRa packet type only expects 4 bytes
         u1_t modParams[SX126X_LORA_MODPARAMS_LEN] = {0};
 
         // LoRa ModParam1 - SF
@@ -588,8 +597,6 @@ static void setModulationParams(u1_t packetType) {
 
     } else {
         // GFSK portion NOT TESTED yet.
-
-        // GFSK packet type takes 8 bytes
         u1_t modParams[SX126X_GFSK_MODPARAMS_LEN] = {0};
 
         // GFSK ModParam1, 2 & 3 - br
@@ -604,19 +611,15 @@ static void setModulationParams(u1_t packetType) {
         modParams[3] = 0x09;
 
         // GFSK ModParam5 - BW
-        // select RX_BW_78200 (78.2 kHz DSB)
-        modParams[4] = 0x1B;
+        // select RX_BW_117300 (117.3 kHz DSB)
+        modParams[4] = 0x0B;
         
         // GFSK ModParam6, 7 & 8 - Fdev
         // Fdev = (Frequency Deviation * 2^25) / Fxtal
-        // Using + / - 25kHz, Fdev = 0x005D21
+        // Using + / - 25kHz, Fdev = 0x006666
         modParams[5] = 0x00;
-        modParams[6] = 0x5D;
-        modParams[7] = 0x21;
-
-        // To ensure correct demodulation, the following limit must be respected for the selection of the bandwidth:
-        // (2 * Fdev + BR) < BW
-        // CHECK: 2 * 0x5D21 + 0x5000 = 0x010A42 (therefore RX_BW_78200 is the lowest BW that passes test)
+        modParams[6] = 0x66;
+        modParams[7] = 0x66;
 
         hal_spi_write(SetModulationParams, modParams, SX126X_GFSK_MODPARAMS_LEN);
     }
@@ -626,7 +629,6 @@ static void setModulationParams(u1_t packetType) {
 static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
     if (packetType == PACKET_TYPE_LORA) {
         
-        // LoRa packet type only expects 6 bytes
         u1_t packetParams[SX126X_LORA_PACKETPARAMS_LEN] = {0};
 
         // LoRa PacketParam1 (MSB) & 2 (LSB) - PreambleLength
@@ -657,7 +659,6 @@ static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
 
     } else if (packetType == PACKET_TYPE_GFSK) {
         // GFSK portion NOT TESTED yet.
-        // GFSK packet type takes 9 bytes
         u1_t packetParams[SX126X_GFSK_PACKETPARAMS_LEN] = {0};
 
         // GFSK PacketParam1 (MSB) & 2 (LSB) - PreambleLength
@@ -666,8 +667,8 @@ static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
         packetParams[1] = 0x05;
 
         // GFSK PacketParam3 - PreambleDetectorLength
-        // The existing radio.c appears to use a 16 bit preamble
-        packetParams[2] = 0x05;
+        // 8 bit preamble
+        packetParams[2] = 0x04;
 
         // GFSK PacketParam4 - SyncWordLength in bits
         // The existing radio.c appears to use a 3 byte sync word
@@ -684,8 +685,17 @@ static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
         // GFSK PacketParam7 - PayloadLength
         packetParams[6] = frameLength;
 
-        // GFSK PacketParam8 - CRCType - CRC_2_BYTE(CRC computed on 2 byte)
-        packetParams[7] = 0x02;
+        // Section 6.2.3.5 of the Data Sheet
+        // GFSK PacketParam8 - CRCType - Default values are CCIT, but must be overwritten if IBM CRC is used
+        if (CRC_IBM_CONFIGURATION) {
+            writeRegister(CRCInitialMSB, (u1_t) ((CRC_IBM_SEED >> 8) & 0xFF));
+            writeRegister(CRCInitialLSB, (u1_t) (CRC_IBM_SEED & 0xFF));
+            writeRegister(CRCPolynomialMSB, (u1_t) ((CRC_IBM_POLY >> 8) & 0xFF));
+            writeRegister(CRCPolynomialLSB, (u1_t) (CRC_IBM_POLY & 0xFF));
+            packetParams[7] = CRC_2_BYTE;
+        } else {
+            packetParams[7] = CRC_2_BYTE_INV;
+        }
 
         // GFSK PacketParam9 - WhiteningEnable
         packetParams[8] = 0x01;
