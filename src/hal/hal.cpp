@@ -58,6 +58,10 @@ static void hal_io_init () {
         pinMode(plmic_pins->rst, INPUT);
     }
 
+#if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
+    if (pHalConfig->queryBusyPin() != 0) pinMode(pHalConfig->queryBusyPin(), INPUT);
+#endif
+
     hal_interrupt_init();
 }
 
