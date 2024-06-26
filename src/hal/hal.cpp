@@ -58,6 +58,10 @@ static void hal_io_init () {
         pinMode(plmic_pins->rst, INPUT);
     }
 
+    if (pHalConfig->queryBusyPin() != LMIC_UNUSED_PIN) {
+        pinMode(pHalConfig->queryBusyPin(), INPUT);
+    }
+
     hal_interrupt_init();
 }
 

@@ -90,7 +90,7 @@ public:
 
 	virtual void begin(void) {}
 	virtual void end(void) {}
-	virtual uint8_t queryBusyPin(void) { return 0; }
+	virtual uint8_t queryBusyPin(void) { return HalPinmap_t::LMIC_UNUSED_PIN; }
 	virtual bool queryUsingTcxo(void) { return false; }
 	virtual bool queryUsingDcdc(void) { return false; }
 	virtual bool queryUsingDIO2AsRfSwitch(void) { return false; }
