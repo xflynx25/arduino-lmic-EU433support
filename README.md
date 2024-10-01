@@ -560,7 +560,7 @@ varies, see for example the "Connections" section of the [Arduino SPI
 documentation](SPI).
 
 The SS (slave select) connection is a bit more flexible. On the SPI
-slave side (the transceiver), this must be connect to the pin
+slave side (the transceiver), this must be connected to the pin
 (typically) labeled *NSS*. On the SPI master (Arduino) side, this pin
 can connect to any I/O pin. Most Arduinos also have a pin labeled "SS",
 but this is only relevant when the Arduino works as an SPI slave, which
