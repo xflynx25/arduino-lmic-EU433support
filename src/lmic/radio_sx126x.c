@@ -32,7 +32,7 @@
 
 #include "lmic.h"
 
-#if (CFG_sx1261_radio || CFG_sx1262_radio)
+#if defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio)
 // This driver is based on Rev. 2.1 of the Semtech SX1261/2 Data Sheet DS.SX1261-2.W.APP
 // ----------------------------------------
 // Command Mapping        **  Chapter 11 List of Commands
@@ -1465,4 +1465,4 @@ void os_radio(u1_t mode) {
 ostime_t os_getRadioRxRampup(void) {
     return RX_RAMPUP_DEFAULT + us2osticks(12480); // SX126x is 780 ticks slower than SX127x to wake from sleep @ 240MHz
 }
-#endif
+#endif // defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio)
