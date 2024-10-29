@@ -192,11 +192,16 @@ static void hal_spi_init () {
 }
 
 #if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
-bit_t is_busy() {
+bit_t hal_radio_spi_is_busy() {
     // SX126x uses BUSY pin
     return digitalRead(pHalConfig->queryBusyPin()) ? true : false;
 }
-#endif
+#else
+// supply a definition just in case, because the declaration is not conditional
+bit_t hal_radio_spi_is_busy() {
+    return false;
+}
+#endif // (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
 
 static void hal_spi_trx(u1_t cmd, u1_t* buf, size_t len, bit_t is_read) {
     uint32_t spi_freq;
@@ -211,7 +216,7 @@ static void hal_spi_trx(u1_t cmd, u1_t* buf, size_t len, bit_t is_read) {
 
     // SX126x modems use BUSY pin. Only interact with SPI when BUSY goes LOW 
 #if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
-    while (is_busy());
+    while (hal_radio_spi_is_busy());
 #endif
 
     SPI.transfer(cmd);
@@ -248,7 +253,7 @@ void hal_spi_read_sx126x(u1_t cmd, u1_t* addr, size_t addr_len, u1_t* buf, size_
     SPI.beginTransaction(settings);
     digitalWrite(nss, 0);
 
-    while (is_busy());
+    while (hal_radio_spi_is_busy());
 
     SPI.transfer(cmd);
 

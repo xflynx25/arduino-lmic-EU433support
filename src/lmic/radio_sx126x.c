@@ -766,7 +766,7 @@ void radio_config(void) {
     // Perform necessary operations from STDBY_RC mode 
     if ((getStatus() | SX126x_GETSTATUS_CHIPMODE_MASK) != SX126x_CHIPMODE_STDBY_RC) {
         // Assume we've woken from sleep
-        while (is_busy());
+        while (hal_radio_spi_is_busy());
         setStandby(STDBY_RC);
     }
 
@@ -1145,7 +1145,7 @@ int radio_init(void) {
     hal_waitUntil(os_getTime()+ms2osticks(1)); // wait >100us
     hal_pin_rst(2); // configure RST pin floating!
     hal_waitUntil(os_getTime()+ms2osticks(5)); // wait 5ms
-    while(is_busy()); // wait for busy pin to go low
+    while(hal_radio_spi_is_busy()); // wait for busy pin to go low
 
     // Check default LoRa sync word to verify the reset was successful
     u1_t syncWordMSB = readRegister(LoRaSyncWordMSB);

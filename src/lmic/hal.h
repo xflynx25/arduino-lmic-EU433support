@@ -191,7 +191,7 @@ uint8_t hal_getTxPowerPolicy(
 
 void hal_pollPendingIRQs_helper();
 void hal_processPendingIRQs(void);
-bit_t is_busy();
+bit_t hal_radio_spi_is_busy();
 
 /// \brief check for any pending interrupts: stub if interrupts are enabled.
 static inline void hal_pollPendingIRQs(void)
