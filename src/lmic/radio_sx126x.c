@@ -32,7 +32,7 @@
 
 #include "lmic.h"
 
-#if (CFG_sx1261_radio || CFG_sx1262_radio)
+#if defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio)
 // This driver is based on Rev. 2.1 of the Semtech SX1261/2 Data Sheet DS.SX1261-2.W.APP
 // ----------------------------------------
 // Command Mapping        **  Chapter 11 List of Commands
@@ -766,7 +766,7 @@ void radio_config(void) {
     // Perform necessary operations from STDBY_RC mode 
     if ((getStatus() | SX126x_GETSTATUS_CHIPMODE_MASK) != SX126x_CHIPMODE_STDBY_RC) {
         // Assume we've woken from sleep
-        while (is_busy());
+        while (hal_radio_spi_is_busy());
         setStandby(STDBY_RC);
     }
 
@@ -1145,7 +1145,7 @@ int radio_init(void) {
     hal_waitUntil(os_getTime()+ms2osticks(1)); // wait >100us
     hal_pin_rst(2); // configure RST pin floating!
     hal_waitUntil(os_getTime()+ms2osticks(5)); // wait 5ms
-    while(is_busy()); // wait for busy pin to go low
+    while(hal_radio_spi_is_busy()); // wait for busy pin to go low
 
     // Check default LoRa sync word to verify the reset was successful
     u1_t syncWordMSB = readRegister(LoRaSyncWordMSB);
@@ -1465,4 +1465,4 @@ void os_radio(u1_t mode) {
 ostime_t os_getRadioRxRampup(void) {
     return RX_RAMPUP_DEFAULT + us2osticks(12480); // SX126x is 780 ticks slower than SX127x to wake from sleep @ 240MHz
 }
-#endif
+#endif // defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio)

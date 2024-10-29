@@ -2570,7 +2570,10 @@ static void engineUpdate_inner (void) {
 
     if( (LMIC.opmode & (OP_JOINING|OP_REJOIN|OP_TXDATA|OP_POLL)) != 0 ) {
         // Assuming txChnl points to channel which first becomes available again.
+
+        // set jacc true if we'll transmit a join-accept rather than user data
         bit_t jacc = ((LMIC.opmode & (OP_JOINING|OP_REJOIN)) != 0 ? 1 : 0);
+
         // Find next suitable channel and return availability time
         if( (LMIC.opmode & OP_NEXTCHNL) != 0 ) {
             txbeg = LMIC.txend = LMICbandplan_nextTx(now);
