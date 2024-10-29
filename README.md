@@ -299,6 +299,14 @@ Configures the library for use with an sx1272 transceiver.
 
 Configures the library for use with an sx1276 transceiver.
 
+`#define CFG_sx1261_radio 1`
+
+Configures the library for use with an sx1261 transceiver.
+
+`#define CFG_sx1262_radio 1`
+
+Configures the library for use with an sx1262 transceiver.
+
 ### Controlling use of interrupts
 
 `#define LMIC_USE_INTERRUPTS`
@@ -441,13 +449,15 @@ The compliance test script includes a suitable logging implementation; the other
 ## Supported hardware
 
 This library is intended to be used with plain LoRa transceivers,
-connecting to them using SPI. In particular, the SX1272 and SX1276
+connected to the Arduino CPU using a SPI bus. In particular:
+
+* The SX1272, SX1276
 families are supported (which should include SX1273, SX1277, SX1278 and
 SX1279 which only differ in the available frequencies, bandwidths and
 spreading factors). It has been tested with both SX1272 and SX1276
-chips, using the Semtech SX1272 evaluation board and the HopeRF RFM92
-and RFM95 boards (which supposedly contain an SX1272 and SX1276 chip
-respectively).
+chips on a variety of platforms.
+
+* The SX1261 and SX1262 families are supported. This has been tested with Heltec and TTGo boards.
 
 This library contains a full LoRaWAN stack and is intended to drive
 these Transceivers directly. It is *not* intended to be used with
@@ -992,6 +1002,7 @@ function uflt12f(rawUflt12)
 - HEAD has the following changes.
 
   - Enable device time request by default in config file ([#840](https://github.com/mcci-catena/arduino-lmic/issues/840)).
+  - Add support for SX126x radios ([#949](https://github.com/mcci-catena/arduino-lmic/pull/949)).
   - Refactor `README.md` a little and put little used configuration info in a separate file.
 
 - v4.1.1 is a patch release.
@@ -1114,6 +1125,8 @@ This library started from the IBM V1.5 open-source code.
 - [`@manuelbl`](https://github.com/manuelbl) contributed numerous ESP32-related patches and improvements.
 
 - [`@ngraziano`](https://github.com/ngraziano) did extensive testing and contributed numerous ADR-related patches.
+
+- [`@TristanWebber`](https://github.com/TristanWebber) contributed sx1261 and sx1262 support.
 
 There are many others, who have contributed code and also participated in discussions, performed testing, reported problems and results. Thanks to all who have participated. We hope to use something like [All Contributors](https://https://allcontributors.org/) to help keep this up to date, but so far the automation isn't working.
 
