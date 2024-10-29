@@ -41,7 +41,7 @@
 	- [Controlling use of interrupts](#controlling-use-of-interrupts)
 	- [Disabling PING](#disabling-ping)
 	- [Disabling Beacons](#disabling-beacons)
-	- [Enabling Network Time Support](#enabling-network-time-support)
+	- [Enabling/Disabling Network Time Support](#enablingdisabling-network-time-support)
 	- [Rarely changed variables](#rarely-changed-variables)
 		- [Changing debug output](#changing-debug-output)
 		- [Getting debug from the RF library](#getting-debug-from-the-rf-library)
@@ -332,7 +332,7 @@ Enabling beacon handling allows tracking of network time, and is required if you
 
 By default, beacon support is included in the library.
 
-### Enabling Network Time Support
+### Enabling/Disabling Network Time Support
 
 `#define LMIC_ENABLE_DeviceTimeReq  number  /* boolean: 0 or non-zero */`
 
@@ -467,9 +467,9 @@ LoRaWAN stack and exposes a high-level serial interface instead of the
 low-level SPI transceiver interface.
 
 This library is intended to be used inside the Arduino environment. It
-should be architecture-independent. Users have tested this on AVR, ARM, Xtensa-based, and RISC-V based system.
+should be architecture-independent. Users have tested this on AVR, ARM, Xtensa-based, ESP32, and RISC-V based systems.
 
-This library can be quite heavy on small systems, especially if the fairly small ATmega
+This library can be quite heavy on 8-bit systems, especially if the fairly small ATmega
 328p (such as in the Arduino Uno) is used. In the default configuration,
 the available 32K flash space is nearly filled up (this includes some
 debug output overhead, though). By disabling some features in `project_config/lmic_project_config.h`
