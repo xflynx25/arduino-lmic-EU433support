@@ -684,13 +684,13 @@ The IBM LMIC used as the basis for this code disables interrupts while the radio
 
 To avoid this, the LMIC processes events in several steps; these steps ensure that `radio_irq_handler_v2()` is only called at predictable times.
 
-1. If interrupts are enabled via `LMIC_USE_INTERRUPTS`, hardware interrupts catch the time of the interrupt and record that the interrupt occurred. These routines rely on hardware edge-sensitive interrupts. If your hardware interrupts are level-sensitive, you must mask the interrupt somehow at the ISR. You can't use SPI routines to talk to the radio, because this may leave the SPI system and the radio in undefined states. In this configuration, `hal_io_pollIRQs()` exists but is a no-op.
+1. If interrupts are enabled via `LMIC_USE_INTERRUPTS`, hardware interrupts catch the time of the interrupt and record that the interrupt occurred. These routines rely on hardware edge-sensitive interrupts. If your hardware interrupts are level-sensitive, you must mask the interrupt somehow at the ISR. You can't use SPI routines to talk to the radio, because this may leave the SPI system and the radio in undefined states. In this configuration, `lmic_hal_io_pollIRQs()` exists but is a no-op.
 
-2. If interrupts are not enabled via `LMIC_USE_INTERRUPTS`, the digital I/O lines are polled every so often by calling the routine `hal_io_pollIRQs()`. This routine watches for edges on the relevant digital I/O lines, and records the time of transition.
+2. If interrupts are not enabled via `LMIC_USE_INTERRUPTS`, the digital I/O lines are polled every so often by calling the routine `lmic_hal_io_pollIRQs()`. This routine watches for edges on the relevant digital I/O lines, and records the time of transition.
 
-3. The LMIC `os_runloop_once()` routine calls `hal_processPendingIRQs()`. This routine uses the timestamps captured by the hardware ISRs and `hal_io_pollIRQs()` to invoke `radio_irq_hander_v2()` with the appropriate information.  `hal_processPendingIRQs()` in turn calls `hal_io_pollIRQs()` (in case interrupts are not configured).
+3. The LMIC `os_runloop_once()` routine calls `lmic_hal_processPendingIRQs()`. This routine uses the timestamps captured by the hardware ISRs and `lmic_hal_io_pollIRQs()` to invoke `radio_irq_hander_v2()` with the appropriate information.  `lmic_hal_processPendingIRQs()` in turn calls `lmic_hal_io_pollIRQs()` (in case interrupts are not configured).
 
-4. For compatibility with older versions of the Arduino LMIC, `hal_enableIRQs()` also calls `hal_io_pollIRQs()` when enabling interrupts. However, it does not dispatch the interrupts to `radio_irq_handler_v2()`; this must be done by a subsequent call to `hal_processPendingIRQs()`.
+4. For compatibility with older versions of the Arduino LMIC, `lmic_hal_enableIRQs()` also calls `lmic_hal_io_pollIRQs()` when enabling interrupts. However, it does not dispatch the interrupts to `radio_irq_handler_v2()`; this must be done by a subsequent call to `lmic_hal_processPendingIRQs()`.
 
 ## Downlink data rate
 
@@ -1004,6 +1004,7 @@ function uflt12f(rawUflt12)
   - Enable device time request by default in config file ([#840](https://github.com/mcci-catena/arduino-lmic/issues/840)).
   - Add support for SX126x radios ([#949](https://github.com/mcci-catena/arduino-lmic/pull/949)).
   - Refactor `README.md` a little and put little used configuration info in a separate file.
+  - Change all exports named `hal_*` to `lmic_hal_*`. This is a breaking change, and so the version number is advanced to 5.0.0-pre1. ([#714](https://github.com/mcci-catena/arduino-lmic/issues/714))
 
 - v4.1.1 is a patch release.
 
@@ -1064,7 +1065,7 @@ function uflt12f(rawUflt12)
   - [#443](https://github.com/mcci-catena/arduino-lmic/pull/443) addresses a number of problems found in cooperation with [RedwoodComm](https://redwoodcomm.com). They suggested a timing improvement to speed testing; this lead to the discovery of a number of problems. Some were in the compliance framework, but one corrects timing for very high spreading factors, several ([#442](https://github.com/mcci-catena/arduino-lmic/issues/442), [#436](https://github.com/mcci-catena/arduino-lmic/issues/438), [#435](https://github.com/mcci-catena/arduino-lmic/issues/435), [#434](https://github.com/mcci-catena/arduino-lmic/issues/434) fix glaring problems in FSK support; [#249](https://github.com/mcci-catena/arduino-lmic/issues/249) greatly enhances stability by making API calls much less likely to crash the LMIC if it's active. Version is v3.0.99.3.
   - [#388](https://github.com/mcci-catena/arduino-lmic/issues/388), [#389](https://github.com/mcci-catena/arduino-lmic/issues/390), [#390](https://github.com/mcci-catena/arduino-lmic/issues/390) change the LMIC to honor the maximum frame size for a given DR in the current region. This proves to be a breaking change for many applications, especially in the US, because DR0 in the US supports only an 11-byte payload, and many apps were ignoring this. Additional error codes were defined so that apps can detect and recover from this situation, but they must detect; otherwise they run the risk of being blocked from the network by the LMIC.  Because of this change, the next version of the LMIC will be V3.1 or higher, and the LMIC version for development is bumped to 3.0.99.0.
   - [#401](https://github.com/mcci-catena/arduino-lmic/issues/401) adds 865 MHz through 868 MHz to the "1%" band for EU.
-  - [#395](https://github.com/mcci-catena/arduino-lmic/pull/395) corrects pin-mode initialization if using `hal_interrupt_init()`.
+  - [#395](https://github.com/mcci-catena/arduino-lmic/pull/395) corrects pin-mode initialization if using `lmic_hal_interrupt_init()`.
   - [#385](https://github.com/mcci-catena/arduino-lmic/issues/385) corrects an error handling data rate selection for `TxParamSetupReq`, found in US-915 certification testing. (v2.3.2.71)
   - [#378](https://github.com/mcci-catena/arduino-lmic/pull/378) completely reworks MAC downlink handling. Resulting code passes the LoRaWAN V1.5 EU certification test. (v2.3.2.70)
   - [#360](https://github.com/mcci-catena/arduino-lmic/issues/360) adds support for the KR-920 regional plan.
@@ -1086,7 +1087,7 @@ function uflt12f(rawUflt12)
 
 - Interim bug fixes: added a new API (`radio_irq_handler_v2()`), which allows the caller to provide the timestamp of the interrupt. This allows for more accurate timing, because the knowledge of interrupt overhead can be moved to a platform-specific layer ([#148](https://github.com/mcci-catena/arduino-lmic/issues/148)). Fixed compile issues on ESP32 ([#140](https://github.com/mcci-catena/arduino-lmic/issues/140) and [#153](https://github.com/mcci-catena/arduino-lmic/issues/150)). We added ESP32 and 32u4 as targets in CI testing. We switched CI testing to Arduino IDE 1.8.7.
    Fixed issue [#161](https://github.com/mcci-catena/arduino-lmic/issues/161) selecting the Japan version of as923 using `CFG_as923jp` (selecting via `CFG_as923` and `LMIC_COUNTRY_CODE=LMIC_COUNTRY_CODE_JP` worked).
-   Fixed [#38](https://github.com/mcci-catena/arduino-lmic/issues/38) -- now any call to hal_init() will put the NSS line in the idle (high/inactive) state. As a side effect, RXTX is initialized, and RESET code changed to set value before transitioning state. Likely no net effect, but certainly more correct.
+   Fixed [#38](https://github.com/mcci-catena/arduino-lmic/issues/38) -- now any call to lmic_hal_init() will put the NSS line in the idle (high/inactive) state. As a side effect, RXTX is initialized, and RESET code changed to set value before transitioning state. Likely no net effect, but certainly more correct.
 
 - V2.2.2 adds `ttn-abp-feather-us915-dht22.ino` example, and fixes some documentation typos. It also fixes encoding of the `Margin` field of the `DevStatusAns` MAC message ([#130](https://github.com/mcci-catena/arduino-lmic/issues/130)).  This makes Arduino LMIC work with networks implemented with [LoraServer](https://www.loraserver.io/).
 

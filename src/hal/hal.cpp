@@ -25,11 +25,11 @@
 static const Arduino_LMIC::HalPinmap_t *plmic_pins;
 static Arduino_LMIC::HalConfiguration_t *pHalConfig;
 static Arduino_LMIC::HalConfiguration_t nullHalConig;
-static hal_failure_handler_t* custom_hal_failure_handler = NULL;
+static lmic_hal_failure_handler_t* custom_hal_failure_handler = NULL;
 
-static void hal_interrupt_init(); // Fwd declaration
+static void lmic_hal_interrupt_init(); // Fwd declaration
 
-static void hal_io_init () {
+static void lmic_hal_io_init () {
     // NSS and DIO0 are required, DIO1 is required for LoRa, DIO2 for FSK
     ASSERT(plmic_pins->nss != LMIC_UNUSED_PIN);
     ASSERT(plmic_pins->dio[0] != LMIC_UNUSED_PIN);
@@ -62,17 +62,17 @@ static void hal_io_init () {
         pinMode(pHalConfig->queryBusyPin(), INPUT);
     }
 
-    hal_interrupt_init();
+    lmic_hal_interrupt_init();
 }
 
 // val == 1  => tx
-void hal_pin_rxtx (u1_t val) {
+void lmic_hal_pin_rxtx (u1_t val) {
     if (plmic_pins->rxtx != LMIC_UNUSED_PIN)
         digitalWrite(plmic_pins->rxtx, val != plmic_pins->rxtx_rx_active);
 }
 
 // set radio RST pin to given value (or keep floating!)
-void hal_pin_rst (u1_t val) {
+void lmic_hal_pin_rst (u1_t val) {
     if (plmic_pins->rst == LMIC_UNUSED_PIN)
         return;
 
@@ -84,7 +84,7 @@ void hal_pin_rst (u1_t val) {
     }
 }
 
-s1_t hal_getRssiCal (void) {
+s1_t lmic_hal_getRssiCal (void) {
     return plmic_pins->rssi_cal;
 }
 
@@ -96,7 +96,7 @@ static_assert(NUM_DIO_INTERRUPT <= NUM_DIO, "Number of interrupt-sensitive lines
 static ostime_t interrupt_time[NUM_DIO_INTERRUPT] = {0};
 
 #if !defined(LMIC_USE_INTERRUPTS)
-static void hal_interrupt_init() {
+static void lmic_hal_interrupt_init() {
     pinMode(plmic_pins->dio[0], INPUT);
     if (plmic_pins->dio[1] != LMIC_UNUSED_PIN)
         pinMode(plmic_pins->dio[1], INPUT);
@@ -106,7 +106,7 @@ static void hal_interrupt_init() {
 }
 
 static bool dio_states[NUM_DIO_INTERRUPT] = {0};
-void hal_pollPendingIRQs_helper() {
+void lmic_hal_pollPendingIRQs_helper() {
     uint8_t i;
     for (i = 0; i < NUM_DIO_INTERRUPT; ++i) {
         if (plmic_pins->dio[i] == LMIC_UNUSED_PIN)
@@ -125,19 +125,19 @@ void hal_pollPendingIRQs_helper() {
 #else
 // Interrupt handlers
 
-static void hal_isrPin0() {
+static void lmic_hal_isrPin0() {
     if (interrupt_time[0] == 0) {
         ostime_t now = os_getTime();
         interrupt_time[0] = now ? now : 1;
     }
 }
-static void hal_isrPin1() {
+static void lmic_hal_isrPin1() {
     if (interrupt_time[1] == 0) {
         ostime_t now = os_getTime();
         interrupt_time[1] = now ? now : 1;
     }
 }
-static void hal_isrPin2() {
+static void lmic_hal_isrPin2() {
     if (interrupt_time[2] == 0) {
         ostime_t now = os_getTime();
         interrupt_time[2] = now ? now : 1;
@@ -145,10 +145,10 @@ static void hal_isrPin2() {
 }
 
 typedef void (*isr_t)();
-static const isr_t interrupt_fns[NUM_DIO_INTERRUPT] = {hal_isrPin0, hal_isrPin1, hal_isrPin2};
+static const isr_t interrupt_fns[NUM_DIO_INTERRUPT] = {lmic_hal_isrPin0, lmic_hal_isrPin1, lmic_hal_isrPin2};
 static_assert(NUM_DIO_INTERRUPT == 3, "number of interrupts must be 3 for initializing interrupt_fns[]");
 
-static void hal_interrupt_init() {
+static void lmic_hal_interrupt_init() {
   for (uint8_t i = 0; i < NUM_DIO_INTERRUPT; ++i) {
       if (plmic_pins->dio[i] == LMIC_UNUSED_PIN)
           continue;
@@ -159,7 +159,7 @@ static void hal_interrupt_init() {
 }
 #endif // LMIC_USE_INTERRUPTS
 
-void hal_processPendingIRQs() {
+void lmic_hal_processPendingIRQs() {
     uint8_t i;
     for (i = 0; i < NUM_DIO_INTERRUPT; ++i) {
         ostime_t iTime;
@@ -187,23 +187,23 @@ void hal_processPendingIRQs() {
 // -----------------------------------------------------------------------------
 // SPI
 
-static void hal_spi_init () {
+static void lmic_hal_spi_init () {
     SPI.begin();
 }
 
 #if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
-bit_t hal_radio_spi_is_busy() {
+bit_t lmic_hal_radio_spi_is_busy() {
     // SX126x uses BUSY pin
     return digitalRead(pHalConfig->queryBusyPin()) ? true : false;
 }
 #else
 // supply a definition just in case, because the declaration is not conditional
-bit_t hal_radio_spi_is_busy() {
+bit_t lmic_hal_radio_spi_is_busy() {
     return false;
 }
 #endif // (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
 
-static void hal_spi_trx(u1_t cmd, u1_t* buf, size_t len, bit_t is_read) {
+static void lmic_hal_spi_trx(u1_t cmd, u1_t* buf, size_t len, bit_t is_read) {
     uint32_t spi_freq;
     u1_t nss = plmic_pins->nss;
 
@@ -216,7 +216,7 @@ static void hal_spi_trx(u1_t cmd, u1_t* buf, size_t len, bit_t is_read) {
 
     // SX126x modems use BUSY pin. Only interact with SPI when BUSY goes LOW 
 #if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
-    while (hal_radio_spi_is_busy());
+    while (lmic_hal_radio_spi_is_busy());
 #endif
 
     SPI.transfer(cmd);
@@ -232,17 +232,17 @@ static void hal_spi_trx(u1_t cmd, u1_t* buf, size_t len, bit_t is_read) {
     SPI.endTransaction();
 }
 
-void hal_spi_write(u1_t cmd, const u1_t* buf, size_t len) {
-    hal_spi_trx(cmd, (u1_t*)buf, len, 0);
+void lmic_hal_spi_write(u1_t cmd, const u1_t* buf, size_t len) {
+    lmic_hal_spi_trx(cmd, (u1_t*)buf, len, 0);
 }
 
-void hal_spi_read(u1_t cmd, u1_t* buf, size_t len) {
-    hal_spi_trx(cmd, buf, len, 1);
+void lmic_hal_spi_read(u1_t cmd, u1_t* buf, size_t len) {
+    lmic_hal_spi_trx(cmd, buf, len, 1);
 }
 
 // SX126x modems behave slightly differently to SX127x. They will often need to transfer multiple bytes before reading
 #if (defined(CFG_sx1261_radio) || defined(CFG_sx1262_radio))
-void hal_spi_read_sx126x(u1_t cmd, u1_t* addr, size_t addr_len, u1_t* buf, size_t buf_len) {
+void lmic_hal_spi_read_sx126x(u1_t cmd, u1_t* addr, size_t addr_len, u1_t* buf, size_t buf_len) {
     uint32_t spi_freq;
     u1_t nss = plmic_pins->nss;
 
@@ -253,7 +253,7 @@ void hal_spi_read_sx126x(u1_t cmd, u1_t* addr, size_t addr_len, u1_t* buf, size_
     SPI.beginTransaction(settings);
     digitalWrite(nss, 0);
 
-    while (hal_radio_spi_is_busy());
+    while (lmic_hal_radio_spi_is_busy());
 
     SPI.transfer(cmd);
 
@@ -278,11 +278,11 @@ void hal_spi_read_sx126x(u1_t cmd, u1_t* addr, size_t addr_len, u1_t* buf, size_
 // -----------------------------------------------------------------------------
 // TIME
 
-static void hal_time_init () {
+static void lmic_hal_time_init () {
     // Nothing to do
 }
 
-u4_t hal_ticks () {
+u4_t lmic_hal_ticks () {
     // Because micros() is scaled down in this function, micros() will
     // overflow before the tick timer should, causing the tick timer to
     // miss a significant part of its values if not corrected. To fix
@@ -330,7 +330,7 @@ u4_t hal_ticks () {
 // Returns the number of ticks until time. Negative values indicate that
 // time has already passed.
 static s4_t delta_time(u4_t time) {
-    return (s4_t)(time - hal_ticks());
+    return (s4_t)(time - lmic_hal_ticks());
 }
 
 // deal with boards that are stressed by no-interrupt delays #529, etc.
@@ -342,7 +342,7 @@ static s4_t delta_time(u4_t time) {
 # define HAL_WAITUNTIL_DOWNCOUNT_THRESH ms2osticks(9) // but try to leave a little slack for final timing.
 #endif
 
-u4_t hal_waitUntil (u4_t time) {
+u4_t lmic_hal_waitUntil (u4_t time) {
     s4_t delta = delta_time(time);
     // check for already too late.
     if (delta < 0)
@@ -388,19 +388,19 @@ u4_t hal_waitUntil (u4_t time) {
 }
 
 // check and rewind for target time
-u1_t hal_checkTimer (u4_t time) {
+u1_t lmic_hal_checkTimer (u4_t time) {
     // No need to schedule wakeup, since we're not sleeping
     return delta_time(time) <= 0;
 }
 
 static uint8_t irqlevel = 0;
 
-void hal_disableIRQs () {
+void lmic_hal_disableIRQs () {
     noInterrupts();
     irqlevel++;
 }
 
-void hal_enableIRQs () {
+void lmic_hal_enableIRQs () {
     if(--irqlevel == 0) {
         interrupts();
 
@@ -414,17 +414,17 @@ void hal_enableIRQs () {
         // As an additional bonus, this prevents the can of worms that
         // we would otherwise get for running SPI transfers inside ISRs.
         // We merely collect the edges and timestamps here; we wait for
-        // a call to hal_processPendingIRQs() before dispatching.
-        hal_pollPendingIRQs_helper();
+        // a call to lmic_hal_processPendingIRQs() before dispatching.
+        lmic_hal_pollPendingIRQs_helper();
 #endif /* !defined(LMIC_USE_INTERRUPTS) */
     }
 }
 
-uint8_t hal_getIrqLevel(void) {
+uint8_t lmic_hal_getIrqLevel(void) {
     return irqlevel;
 }
 
-void hal_sleep () {
+void lmic_hal_sleep () {
     // Not implemented
 }
 
@@ -444,7 +444,7 @@ static cookie_io_functions_t functions =
      .close = NULL
  };
 
-void hal_printf_init() {
+void lmic_hal_printf_init() {
     stdout = fopencookie(NULL, "w", functions);
     if (stdout != nullptr) {
         setvbuf(stdout, NULL, _IONBF, 0);
@@ -457,7 +457,7 @@ static int uart_putchar (char c, FILE *)
     return 0 ;
 }
 
-void hal_printf_init() {
+void lmic_hal_printf_init() {
     // create a FILE structure to reference our UART output function
     static FILE uartout;
     memset(&uartout, 0, sizeof(uartout));
@@ -472,23 +472,23 @@ void hal_printf_init() {
 #endif // !defined(ESP8266) || defined(ESP31B) || defined(ESP32)
 #endif // defined(LMIC_PRINTF_TO)
 
-void hal_init (void) {
+void lmic_hal_init (void) {
     // use the global constant
-    Arduino_LMIC::hal_init_with_pinmap(&lmic_pins);
+    Arduino_LMIC::lmic_hal_init_with_pinmap(&lmic_pins);
 }
 
-// hal_init_ex is a C API routine, written in C++, and it's called
+// lmic_hal_init_ex is a C API routine, written in C++, and it's called
 // with a pointer to an lmic_pinmap.
-void hal_init_ex (const void *pContext) {
+void lmic_hal_init_ex (const void *pContext) {
     const lmic_pinmap * const pHalPinmap = (const lmic_pinmap *) pContext;
-    if (! Arduino_LMIC::hal_init_with_pinmap(pHalPinmap)) {
-        hal_failed(__FILE__, __LINE__);
+    if (! Arduino_LMIC::lmic_hal_init_with_pinmap(pHalPinmap)) {
+        lmic_hal_failed(__FILE__, __LINE__);
     }
 }
 
 // C++ API: initialize the HAL properly with a configuration object
 namespace Arduino_LMIC {
-bool hal_init_with_pinmap(const HalPinmap_t *pPinmap)
+bool lmic_hal_init_with_pinmap(const HalPinmap_t *pPinmap)
     {
     if (pPinmap == nullptr)
         return false;
@@ -507,14 +507,14 @@ bool hal_init_with_pinmap(const HalPinmap_t *pPinmap)
     pHalConfig->begin();
 
     // configure radio I/O and interrupt handler
-    hal_io_init();
+    lmic_hal_io_init();
     // configure radio SPI
-    hal_spi_init();
+    lmic_hal_spi_init();
     // configure timer and interrupt handler
-    hal_time_init();
+    lmic_hal_time_init();
 #if defined(LMIC_PRINTF_TO)
     // printf support
-    hal_printf_init();
+    lmic_hal_printf_init();
 #endif
     // declare success
     return true;
@@ -522,7 +522,7 @@ bool hal_init_with_pinmap(const HalPinmap_t *pPinmap)
 }; // namespace Arduino_LMIC
 
 
-void hal_failed (const char *file, u2_t line) {
+void lmic_hal_failed (const char *file, u2_t line) {
     if (custom_hal_failure_handler != NULL) {
         (*custom_hal_failure_handler)(file, line);
     }
@@ -535,7 +535,7 @@ void hal_failed (const char *file, u2_t line) {
     LMIC_FAILURE_TO.flush();
 #endif
 
-    hal_disableIRQs();
+    lmic_hal_disableIRQs();
 
     // Infinite loop
     while (1) {
@@ -543,34 +543,34 @@ void hal_failed (const char *file, u2_t line) {
     }
 }
 
-void hal_set_failure_handler(const hal_failure_handler_t* const handler) {
+void lmic_hal_set_failure_handler(const lmic_hal_failure_handler_t* const handler) {
     custom_hal_failure_handler = handler;
 }
 
-ostime_t hal_setModuleActive (bit_t val) {
+ostime_t lmic_hal_setModuleActive (bit_t val) {
     // setModuleActive() takes a c++ bool, so
     // it effectively says "val != 0". We
     // don't have to.
     return pHalConfig->setModuleActive(val);
 }
 
-bit_t hal_queryUsingTcxo(void) {
+bit_t lmic_hal_queryUsingTcxo(void) {
     return pHalConfig->queryUsingTcxo();
 }
 
-bit_t hal_queryUsingDcdc(void) {
+bit_t lmic_hal_queryUsingDcdc(void) {
     return pHalConfig->queryUsingDcdc();
 }
 
-bit_t hal_queryUsingDIO2AsRfSwitch(void) {
+bit_t lmic_hal_queryUsingDIO2AsRfSwitch(void) {
     return pHalConfig->queryUsingDIO2AsRfSwitch();
 }
 
-bit_t hal_queryUsingDIO3AsTCXOSwitch(void) {
+bit_t lmic_hal_queryUsingDIO3AsTCXOSwitch(void) {
     return pHalConfig->queryUsingDIO3AsTCXOSwitch();
 }
 
-uint8_t hal_getTxPowerPolicy(
+uint8_t lmic_hal_getTxPowerPolicy(
     u1_t inputPolicy,
     s1_t requestedPower,
     u4_t frequency

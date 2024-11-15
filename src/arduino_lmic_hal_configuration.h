@@ -114,7 +114,7 @@ public:
 		}
 	};
 
-bool hal_init_with_pinmap(const HalPinmap_t *pPinmap);
+bool lmic_hal_init_with_pinmap(const HalPinmap_t *pPinmap);
 
 }; // end namespace Arduino_LMIC
 
