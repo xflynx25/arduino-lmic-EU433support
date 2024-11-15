@@ -259,7 +259,7 @@ static void writeRegister(u2_t addr, u1_t data) {
         data,
     };
 
-    hal_spi_write(WriteRegister, addr_buf, SX126X_RW_REGISTER_LEN);
+    lmic_hal_spi_write(WriteRegister, addr_buf, SX126X_RW_REGISTER_LEN);
 }
 
 // Return one byte from register `addr`
@@ -270,7 +270,7 @@ static u1_t readRegister(u2_t addr) {
         SX126X_NOP,
     };
     u1_t buf;
-    hal_spi_read_sx126x(ReadRegister, addr_buf, SX126X_RW_REGISTER_LEN, &buf, 1);
+    lmic_hal_spi_read_sx126x(ReadRegister, addr_buf, SX126X_RW_REGISTER_LEN, &buf, 1);
     return buf;
 }
 
@@ -278,7 +278,7 @@ static u1_t readRegister(u2_t addr) {
 static void writeBuffer(u1_t addr, xref2u1_t buf, u1_t len) {
     // Set the TX buffer base address. Leave RX base address as 0
     u1_t baseAddr[SX126X_BUFF_BASE_ADDR_LEN] = {addr, 0};
-    hal_spi_write(SetBufferBaseAddress, &addr, SX126X_BUFF_BASE_ADDR_LEN);
+    lmic_hal_spi_write(SetBufferBaseAddress, &addr, SX126X_BUFF_BASE_ADDR_LEN);
 
     // Prepend the offset byte to the data being written to the buffer
     u1_t new_buf[len + 1];
@@ -287,7 +287,7 @@ static void writeBuffer(u1_t addr, xref2u1_t buf, u1_t len) {
         new_buf[i] = buf[i - 1];
     }
 
-    hal_spi_write(WriteBuffer, new_buf, len + 1);
+    lmic_hal_spi_write(WriteBuffer, new_buf, len + 1);
 }
 
 // Read `len` bytes from the FIFO buffer to `buf` from position `offset`
@@ -297,7 +297,7 @@ static void readBuffer(u1_t offset, xref2u1_t buf, u1_t len) {
         SX126X_NOP,
     };
 
-    hal_spi_read_sx126x(ReadBuffer, offset_buf, SX126X_W_BUFFER_LEN, buf, len);
+    lmic_hal_spi_read_sx126x(ReadBuffer, offset_buf, SX126X_W_BUFFER_LEN, buf, len);
 }
 
 // Chapter 13.1: Operational Modes Functions
@@ -308,26 +308,26 @@ static void readBuffer(u1_t offset, xref2u1_t buf, u1_t len) {
 static void setSleep(u1_t sleepConfig) {
     // MISSING FUNCTIONALITY sleepConfig can be modified to allow warm start and set an RTC timeout
     // default coldstart sleepConfig = 0x00;
-    hal_spi_write(SetSleep, &sleepConfig, SX126X_SLEEPCONFIG_LEN);
+    lmic_hal_spi_write(SetSleep, &sleepConfig, SX126X_SLEEPCONFIG_LEN);
 }
 
 // Accepts StdbyConfig STDBY_RC or STDBY_XOSC
 static void setStandby(u1_t stdbyConfig) {
-    hal_spi_write(SetStandby, &stdbyConfig, SX126X_STDBYCONFIG_LEN);
+    lmic_hal_spi_write(SetStandby, &stdbyConfig, SX126X_STDBYCONFIG_LEN);
 }
 
 static void setFs(void) {
-    hal_spi_write(SetFs, NULL, 0);
+    lmic_hal_spi_write(SetFs, NULL, 0);
 }
 
 // TODO handle the bit bashing as a macro to allow functions to be called with ms rather than 3 bytes
 static void setTx(u1_t timeout[SX126X_TIMEOUT_LEN]) {
-    hal_spi_write(SetTx, timeout, SX126X_TIMEOUT_LEN);
+    lmic_hal_spi_write(SetTx, timeout, SX126X_TIMEOUT_LEN);
 }
 
 // TODO handle the bit bashing as a macro to allow functions to be called with ms rather than 3 bytes
 static void setRx(u1_t timeout[SX126X_TIMEOUT_LEN]) {
-    hal_spi_write(SetRx, timeout, SX126X_TIMEOUT_LEN);
+    lmic_hal_spi_write(SetRx, timeout, SX126X_TIMEOUT_LEN);
 
     // Workaround 15.3 - Implicit Header Mode Timeout Behaviour
     // It is advised to add the following commands after ANY Rx with Timeout active sequence,
@@ -349,12 +349,12 @@ static void setRx(u1_t timeout[SX126X_TIMEOUT_LEN]) {
 // Default is LDO. DC-DC can be activated by setting regModeParam to 0x01
 // NOTE: This is hardware specific and will need to be described in the pinmap files
 static void setRegulatorMode(u1_t regModeParam) {
-    hal_spi_write(SetRegulatorMode, &regModeParam, SX126X_REGMODEPARAM_LEN);
+    lmic_hal_spi_write(SetRegulatorMode, &regModeParam, SX126X_REGMODEPARAM_LEN);
 }
 
 // 0x7F calibrates all. It's possible to use other bits to calibrate fewer blocks and expedite the cal but for first pass, setting as a default for ease of implementation
 static void calibrate(u1_t calibParam) {
-    hal_spi_write(Calibrate, &calibParam, SX126X_CALIBPARAM_LEN);
+    lmic_hal_spi_write(Calibrate, &calibParam, SX126X_CALIBPARAM_LEN);
 }
 
 static void calibrateImage(void) {
@@ -379,7 +379,7 @@ static void calibrateImage(void) {
         calFreq[1] = 0x6F;
     }
 
-    hal_spi_write(CalibrateImage, calFreq, SX126X_IMAGECALPARAM_LEN);
+    lmic_hal_spi_write(CalibrateImage, calFreq, SX126X_IMAGECALPARAM_LEN);
 }
 
 static void setPaConfig(u1_t paDutyCycle, u1_t hpMax, u1_t deviceSel, u1_t paLut) {
@@ -390,7 +390,7 @@ static void setPaConfig(u1_t paDutyCycle, u1_t hpMax, u1_t deviceSel, u1_t paLut
         paLut,
     };
 
-    hal_spi_write(SetPaConfig, paConfigParam, SX126X_PACONFIGPARAM_LEN);
+    lmic_hal_spi_write(SetPaConfig, paConfigParam, SX126X_PACONFIGPARAM_LEN);
 }
 
 // Chapter 13.3: DIO and IRQ Control Functions
@@ -406,13 +406,13 @@ static void setDioIrqParams(u2_t irqMask, u2_t dio1Mask, u2_t dio2Mask, u2_t dio
         dio3Mask & 0xFF,
     };
 
-    hal_spi_write(SetDioIrqParams, irqParams, SX126X_SETIRQPARAMS_LEN);
+    lmic_hal_spi_write(SetDioIrqParams, irqParams, SX126X_SETIRQPARAMS_LEN);
 }
 
 static u2_t getIrqStatus(void) {
     u1_t nop = SX126X_NOP;
     u1_t buf[SX126X_IRQSTATUS_LEN];
-    hal_spi_read_sx126x(GetIrqStatus, &nop, 1, buf, SX126X_IRQSTATUS_LEN);
+    lmic_hal_spi_read_sx126x(GetIrqStatus, &nop, 1, buf, SX126X_IRQSTATUS_LEN);
     u2_t irqStatus = (buf[0] << 8) | buf[1];
     return irqStatus;
 }
@@ -422,13 +422,13 @@ static void clearIrqStatus(u2_t clearIrqArg) {
         (u1_t)(clearIrqArg >> 8),
         (u1_t)(clearIrqArg & 0xff),
     };
-    hal_spi_write(ClearIrqStatus, clearIrqParams, SX126X_CLEARIRQPARAMS_LEN);
+    lmic_hal_spi_write(ClearIrqStatus, clearIrqParams, SX126X_CLEARIRQPARAMS_LEN);
 }
 
 // Allows direct control of RFswitch by SX126x if the hardware supports it
 static void setDio2AsRfSwitchCtrl(void) {
     u1_t enable = 0x01;
-    hal_spi_write(SetDIO2AsRfSwitchCtrl, &enable, 1);
+    lmic_hal_spi_write(SetDIO2AsRfSwitchCtrl, &enable, 1);
 }
 
 // Allows direct control of TCXO by SX126x if the hardware supports it
@@ -471,7 +471,7 @@ static void setDIO3AsTcxoCtrl(float tcxoVoltage, u1_t delay[SX126X_TIMEOUT_LEN])
         setDio3AsTcxoParam[i] = (i == 0) ? voltageParam : delay[i - 1];
     }
 
-    hal_spi_write(SetDIO3AsTcxoCtrl, setDio3AsTcxoParam, (SX126X_TIMEOUT_LEN + 1));
+    lmic_hal_spi_write(SetDIO3AsTcxoCtrl, setDio3AsTcxoParam, (SX126X_TIMEOUT_LEN + 1));
 }
 
 // Chapter 13.4: RF Modulation and Packet-Related Functions
@@ -486,17 +486,17 @@ static void setRfFrequency(void) {
         (u1_t)(rfFreq >> 0),
     };
 
-    hal_spi_write(SetRfFrequency, rfFreqParam, SX126X_RFFREQPARAMS_LEN);
+    lmic_hal_spi_write(SetRfFrequency, rfFreqParam, SX126X_RFFREQPARAMS_LEN);
 }
 
 static void setPacketType(u1_t packetType) {
-    hal_spi_write(SetPacketType, &packetType, 1);
+    lmic_hal_spi_write(SetPacketType, &packetType, 1);
 }
 
 static u1_t getPacketType(void) {
     u1_t nop = SX126X_NOP;
     u1_t buf;
-    hal_spi_read_sx126x(GetPacketType, &nop, 1, &buf, 1);
+    lmic_hal_spi_read_sx126x(GetPacketType, &nop, 1, &buf, 1);
     return(buf);
 }
 
@@ -544,7 +544,7 @@ static void setTxParams(void) {
         SET_RAMP_40U,
     };
     
-    hal_spi_write(SetTxParams, txParams, 2);
+    lmic_hal_spi_write(SetTxParams, txParams, 2);
 
     // TODO adjust OCP based on tx power to save power
     // Eg SX1262 < 14, set ma to 80. (20 > pa >= 14), set ma to 100. >= 20 then leave at 140ma default that occurs after PAconfig
@@ -594,7 +594,7 @@ static void setModulationParams(u1_t packetType) {
             modParams[3] = 0x01;
         }
 
-        hal_spi_write(SetModulationParams, modParams, SX126X_LORA_MODPARAMS_LEN);
+        lmic_hal_spi_write(SetModulationParams, modParams, SX126X_LORA_MODPARAMS_LEN);
 
     } else {
         // GFSK portion NOT TESTED yet.
@@ -622,7 +622,7 @@ static void setModulationParams(u1_t packetType) {
         modParams[6] = 0x66;
         modParams[7] = 0x66;
 
-        hal_spi_write(SetModulationParams, modParams, SX126X_GFSK_MODPARAMS_LEN);
+        lmic_hal_spi_write(SetModulationParams, modParams, SX126X_GFSK_MODPARAMS_LEN);
     }
 }
 
@@ -647,7 +647,7 @@ static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
         packetParams[4] = getNocrc(LMIC.rps) ? 0x00 : 0x01;
         packetParams[5] = invertIQ ? 0x01 : 0x00;
 
-        hal_spi_write(SetPacketParams, packetParams, SX126X_LORA_PACKETPARAMS_LEN);
+        lmic_hal_spi_write(SetPacketParams, packetParams, SX126X_LORA_PACKETPARAMS_LEN);
 
         // Workaround 15.4 - Optimising the Inverted IQ Operation
         if (invertIQ) {
@@ -701,7 +701,7 @@ static void setPacketParams(u1_t packetType, u1_t frameLength, u1_t invertIQ) {
         // GFSK PacketParam9 - WhiteningEnable
         packetParams[8] = 0x01;
 
-        hal_spi_write(SetPacketParams, packetParams, SX126X_LORA_PACKETPARAMS_LEN);
+        lmic_hal_spi_write(SetPacketParams, packetParams, SX126X_LORA_PACKETPARAMS_LEN);
 
         // Sync word is directly programmed into the device through simple register access.
         writeRegister(SyncWord0, 0xC1);
@@ -722,12 +722,12 @@ static void setBufferBaseAddress(void) {
         0x00, // TX base address
         0x00 // RX base address
     };
-    hal_spi_write(SetBufferBaseAddress, buf, 2);
+    lmic_hal_spi_write(SetBufferBaseAddress, buf, 2);
 }
 
 static void setLoRaSymbNumTimeout(void) {
     u1_t buf = {(u1_t)LMIC.rxsyms};
-    hal_spi_write(SetLoRaSymbNumTimeout, &buf, 1);
+    lmic_hal_spi_write(SetLoRaSymbNumTimeout, &buf, 1);
 }
 
 // Chapter 13.5: Communication Status Information
@@ -735,30 +735,30 @@ static void setLoRaSymbNumTimeout(void) {
 // Chip mode is (getStatus | 0x70)
 static u1_t getStatus(void) {
     u1_t status;
-    hal_spi_read_sx126x(GetStatus, NULL, 0, &status, 1);
+    lmic_hal_spi_read_sx126x(GetStatus, NULL, 0, &status, 1);
     return status;
 }
 
 static void getDeviceErrors(xref2cu1_t errorBuf) {
     u1_t nop = SX126X_NOP;
     u1_t errors[2];
-    hal_spi_read_sx126x(GetDeviceErrors, &nop, 1, errors, 2);
+    lmic_hal_spi_read_sx126x(GetDeviceErrors, &nop, 1, errors, 2);
 }
 
 static void clearDeviceErrors(void) {
     u1_t buf[2] = {0};
-    hal_spi_write(ClearDeviceErrors, buf, 2);
+    lmic_hal_spi_write(ClearDeviceErrors, buf, 2);
 }
 
 static void getRxBufferStatus(xref2u1_t rxBufferStatus) {
     u1_t nop = SX126X_NOP;
-    hal_spi_read_sx126x(GetRxBufferStatus, &nop, 1, rxBufferStatus, SX126X_RXBUFFERSTATUS_LEN);
+    lmic_hal_spi_read_sx126x(GetRxBufferStatus, &nop, 1, rxBufferStatus, SX126X_RXBUFFERSTATUS_LEN);
 }
 
 static void getPacketStatus(xref2u1_t rxBufferStatus) {
     u1_t nop = SX126X_NOP;
     u1_t buf[SX126X_PACKETSTATUS_LEN];
-    hal_spi_read_sx126x(GetPacketStatus, &nop, 1, buf, SX126X_PACKETSTATUS_LEN);
+    lmic_hal_spi_read_sx126x(GetPacketStatus, &nop, 1, buf, SX126X_PACKETSTATUS_LEN);
 }
 
 // Perform radio configuration commands required at the start of tx and rx
@@ -766,12 +766,12 @@ void radio_config(void) {
     // Perform necessary operations from STDBY_RC mode 
     if ((getStatus() | SX126x_GETSTATUS_CHIPMODE_MASK) != SX126x_CHIPMODE_STDBY_RC) {
         // Assume we've woken from sleep
-        while (hal_radio_spi_is_busy());
+        while (lmic_hal_radio_spi_is_busy());
         setStandby(STDBY_RC);
     }
 
     // If the board has RfSwitch, switch on
-    if (hal_queryUsingDIO2AsRfSwitch) {
+    if (lmic_hal_queryUsingDIO2AsRfSwitch) {
         setDio2AsRfSwitchCtrl();
     }
 
@@ -780,12 +780,12 @@ void radio_config(void) {
     writeRegister(TxClampConfig, (readRegister(TxClampConfig) | 0x1E));
 
     // DC-DC regulator is hardware dependent
-    if (hal_queryUsingDcdc()) {
+    if (lmic_hal_queryUsingDcdc()) {
         setRegulatorMode(0x01);
     }
 
     // If the board has TCXO, the calibration order is important.
-    if (hal_queryUsingDIO3AsTCXOSwitch()) {
+    if (lmic_hal_queryUsingDIO3AsTCXOSwitch()) {
         float tcxoVoltage = 1.8;
         u1_t tcxoTimeout[SX126X_TIMEOUT_LEN] = {0x00, 0x01, 0x40}; // 
         setDIO3AsTcxoCtrl(tcxoVoltage, tcxoTimeout);
@@ -809,7 +809,7 @@ static void txlora(void) {
 
     writeBuffer(0x00, LMIC.frame, LMIC.dataLen);
 
-    hal_pin_rxtx(1);
+    lmic_hal_pin_rxtx(1);
 
     setModulationParams(PACKET_TYPE_LORA);
     setPacketParams(PACKET_TYPE_LORA, LMIC.dataLen, LMIC.noRXIQinversion);
@@ -827,7 +827,7 @@ static void txlora(void) {
 
     // Start the transmission
     if (LMIC.txend) {
-        u4_t nLate = hal_waitUntil(LMIC.txend); // busy wait until exact tx time
+        u4_t nLate = lmic_hal_waitUntil(LMIC.txend); // busy wait until exact tx time
         if (nLate) {
             LMIC.radio.txlate_ticks += nLate;
             ++LMIC.radio.txlate_count;
@@ -861,7 +861,7 @@ static void txfsk(void) {
 
     writeBuffer(0x00, LMIC.frame, LMIC.dataLen);
 
-    hal_pin_rxtx(1);
+    lmic_hal_pin_rxtx(1);
 
     setModulationParams(PACKET_TYPE_GFSK);
     setPacketParams(PACKET_TYPE_GFSK, LMIC.dataLen, LMIC.noRXIQinversion);
@@ -875,7 +875,7 @@ static void txfsk(void) {
 
     // now we actually start the transmission
     if (LMIC.txend) {
-        u4_t nLate = hal_waitUntil(LMIC.txend); // busy wait until exact tx time
+        u4_t nLate = lmic_hal_waitUntil(LMIC.txend); // busy wait until exact tx time
         if (nLate > 0) {
             LMIC.radio.txlate_ticks += nLate;
             ++LMIC.radio.txlate_count;
@@ -962,7 +962,7 @@ static void rxlora(u1_t rxmode) {
     // Rx Boosted gain. Default is Rx Power saving. Uncomment if boosted is desired
     // writeRegister(RxGain, (readRegister(RxGain) | 0x96));
 
-    hal_pin_rxtx(0);
+    lmic_hal_pin_rxtx(0);
     
     // Set DioIrq params to DIO1
     u2_t dioMask = RxDone | Timeout;
@@ -978,7 +978,7 @@ static void rxlora(u1_t rxmode) {
 
     // now instruct the radio to receive
     if (rxmode == RXMODE_SINGLE) {
-        u4_t nLate = hal_waitUntil(LMIC.rxtime);
+        u4_t nLate = lmic_hal_waitUntil(LMIC.rxtime);
         u1_t rxTimeoutSingle[SX126X_TIMEOUT_LEN] = {
             0x00,
             0x00,
@@ -1038,7 +1038,7 @@ static void rxfsk(u1_t rxmode) {
     // Rx Boosted gain. Default is Rx Power saving. Uncomment if boosted is desired
     // writeRegister(RxGain, (readRegister(RxGain) | 0x96));
 
-    hal_pin_rxtx(0);
+    lmic_hal_pin_rxtx(0);
     
     // Set DioIrq params to DIO1
     u2_t dioMask = RxDone | Timeout;
@@ -1049,7 +1049,7 @@ static void rxfsk(u1_t rxmode) {
 
     // now instruct the radio to receive
     if (rxmode == RXMODE_SINGLE) {
-        u4_t nLate = hal_waitUntil(LMIC.rxtime); // busy wait until exact rx time
+        u4_t nLate = lmic_hal_waitUntil(LMIC.rxtime); // busy wait until exact rx time
         u1_t rxTimeoutSingle[SX126X_TIMEOUT_LEN] = {
             0x00,
             0x00,
@@ -1096,7 +1096,7 @@ void randomNumber(xref2u1_t randbuf) {
 
     setRx(rxTimeoutContinuous);
     
-    hal_waitUntil(os_getTime() + ms2osticks(100)); // TODO 100ms seems excessive so test and reduce
+    lmic_hal_waitUntil(os_getTime() + ms2osticks(100)); // TODO 100ms seems excessive so test and reduce
 
     // Fill each byte with one of the RandomNumberGen registers
     for (u1_t i = 0; i < SX126X_RAND_SEED_LEN / 4; i++) {
@@ -1111,10 +1111,10 @@ void randomNumber(xref2u1_t randbuf) {
 
 // requestModuleActive manages a tcxo controlled by the MCU
 static void requestModuleActive(bit_t state) {
-    ostime_t const ticks = hal_setModuleActive(state);
+    ostime_t const ticks = lmic_hal_setModuleActive(state);
 
     if (ticks) {
-        hal_waitUntil(os_getTime() + ticks);
+        lmic_hal_waitUntil(os_getTime() + ticks);
     }
 }
 
@@ -1130,22 +1130,22 @@ static void requestModuleActive(bit_t state) {
 //! \pre
 //! Preconditions must be observed, or you'll get hangs during initialization.
 //!
-//! - The `hal_pin_..()` functions must be ready for use.
-//! - The `hal_waitUntl()` function must be ready for use. This may mean that interrupts
+//! - The `lmic_hal_pin_..()` functions must be ready for use.
+//! - The `lmic_hal_waitUntl()` function must be ready for use. This may mean that interrupts
 //!   are enabled.
-//! - The `hal_spi_..()` functions must be ready for use.
+//! - The `lmic_hal_spi_..()` functions must be ready for use.
 //!
-//! Generally, all these are satisfied by a call to `hal_init_with_pinmap()`.
+//! Generally, all these are satisfied by a call to `lmic_hal_init_with_pinmap()`.
 //!
 int radio_init(void) {
     requestModuleActive(1);
 
     // manually reset radio
-    hal_pin_rst(0); // drive RST pin low
-    hal_waitUntil(os_getTime()+ms2osticks(1)); // wait >100us
-    hal_pin_rst(2); // configure RST pin floating!
-    hal_waitUntil(os_getTime()+ms2osticks(5)); // wait 5ms
-    while(hal_radio_spi_is_busy()); // wait for busy pin to go low
+    lmic_hal_pin_rst(0); // drive RST pin low
+    lmic_hal_waitUntil(os_getTime()+ms2osticks(1)); // wait >100us
+    lmic_hal_pin_rst(2); // configure RST pin floating!
+    lmic_hal_waitUntil(os_getTime()+ms2osticks(5)); // wait 5ms
+    while(lmic_hal_radio_spi_is_busy()); // wait for busy pin to go low
 
     // Check default LoRa sync word to verify the reset was successful
     u1_t syncWordMSB = readRegister(LoRaSyncWordMSB);
@@ -1183,7 +1183,7 @@ u1_t radio_rand1(void) {
 u1_t radio_rssi(void) {
     u1_t buf;
     u1_t nop = SX126X_NOP;
-    hal_spi_read_sx126x(GetRssiInst, &nop, 1, &buf, 1);
+    lmic_hal_spi_read_sx126x(GetRssiInst, &nop, 1, &buf, 1);
 
     // Problem: Original SX127x returns raw contents of register, but:
     // For SX1276, RSSI = (freq < 525MHz) ? -157 + buf : -164 + buf
@@ -1228,7 +1228,7 @@ void radio_monitor_rssi(ostime_t nTicks, oslmic_radio_rssi_t *pRssi) {
     rssiN = 0;
 
     // wait for PLLs
-    hal_waitUntil(os_getTime() + us2osticks(500));
+    lmic_hal_waitUntil(os_getTime() + us2osticks(500));
 
     // scan for the desired time.
     tBegin = os_getTime();
@@ -1242,7 +1242,7 @@ void radio_monitor_rssi(ostime_t nTicks, oslmic_radio_rssi_t *pRssi) {
 
         u1_t nop = SX126X_NOP;
         u1_t rssiNow;
-        hal_spi_read_sx126x(GetRssiInst, &nop, 1, &rssiNow, 1);
+        lmic_hal_spi_read_sx126x(GetRssiInst, &nop, 1, &rssiNow, 1);
         if (rssiMax < rssiNow)
                 rssiMax = rssiNow;
         if (rssiNow < rssiMin)
