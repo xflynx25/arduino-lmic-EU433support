@@ -144,7 +144,7 @@ void lmic_hal_failed (const char *file, u2_t line);
  * set a custom hal failure handler routine. The default behaviour, defined in
  * lmic_hal_failed(), is to halt by looping infintely.
  */
-void lmic_hal_set_failure_handler(const lmic_hal_failure_handler_t* const);
+void lmic_hal_set_failure_handler (lmic_hal_failure_handler_t*);
 
 /*
  * get the calibration value for radio_rssi
