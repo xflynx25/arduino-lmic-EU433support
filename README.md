@@ -1,6 +1,6 @@
 # Arduino-LMIC library ("MCCI LoRaWAN LMIC Library")
 
-[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v4.1.1...master) [![Arduino CI](https://img.shields.io/github/actions/workflow/status/mcci-catena/arduino-lmic/ci-arduinocli.yml?branch-master)](https://github.com/mcci-catena/arduino-lmic/actions)
+[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v5.0.0...master) [![Arduino CI](https://img.shields.io/github/actions/workflow/status/mcci-catena/arduino-lmic/ci-arduinocli.yml?branch-master)](https://github.com/mcci-catena/arduino-lmic/actions)
 
 **Contents:**
 
@@ -999,12 +999,16 @@ function uflt12f(rawUflt12)
 
 ## Release History
 
-- HEAD has the following changes.
+- v5.0.0 has the following changes.
 
   - Enable device time request by default in config file ([#840](https://github.com/mcci-catena/arduino-lmic/issues/840)).
-  - Add support for SX126x radios ([#949](https://github.com/mcci-catena/arduino-lmic/pull/949)).
+  - Add support for SX1261/SX1262 radios ([#949](https://github.com/mcci-catena/arduino-lmic/pull/949)).
   - Refactor `README.md` a little and put little used configuration info in a separate file.
-  - Change all exports named `hal_*` to `lmic_hal_*`. This is a breaking change, and so the version number is advanced to 5.0.0-pre1. ([#714](https://github.com/mcci-catena/arduino-lmic/issues/714))
+  - Change all exports named `hal_*` to `lmic_hal_*`. This is a breaking change, and so the version number is advanced to 5.0.0. ([#714](https://github.com/mcci-catena/arduino-lmic/issues/714))
+  - Fix typos in documentation ([#956](https://github.com/mcci-catena/arduino-lmic/pull/956), [#879](https://github.com/mcci-catena/arduino-lmic/pull/879)).
+  - Initialize DHT sensor in ttn-abp-feather-us915-dht22 example ([#902](https://github.com/mcci-catena/arduino-lmic/pull/902))
+  - Fix configPower for sx1272 ([#894](https://github.com/mcci-catena/arduino-lmic/pull/894))
+  - Enable device time by request ([#840](https://github.com/mcci-catena/arduino-lmic/pull/840))
 
 - v4.1.1 is a patch release.
 
@@ -1127,7 +1131,7 @@ This library started from the IBM V1.5 open-source code.
 
 - [`@ngraziano`](https://github.com/ngraziano) did extensive testing and contributed numerous ADR-related patches.
 
-- [`@TristanWebber`](https://github.com/TristanWebber) contributed sx1261 and sx1262 support.
+- Tristan Webber ([`@TristanWebber`](https://github.com/TristanWebber)) contributed sx1261 and sx1262 support.
 
 There are many others, who have contributed code and also participated in discussions, performed testing, reported problems and results. Thanks to all who have participated. We hope to use something like [All Contributors](https://https://allcontributors.org/) to help keep this up to date, but so far the automation isn't working.
 
