@@ -2608,7 +2608,8 @@ static void engineUpdate_inner (void) {
         // otherwise the compiler falsely assumes that the computation
         // is positive.
         //
-        if( ((ostime_t) (txbeg - (now + TX_RAMPUP))) < 0 ) {
+        volatile ostime_t tdiff = txbeg - (now + TX_RAMPUP);
+        if( tdiff < 0 ) {
             // We could send right now!
             txbeg = now;
             dr_t txdr = (dr_t)LMIC.datarate;
