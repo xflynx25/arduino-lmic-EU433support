@@ -1,6 +1,7 @@
 # Arduino-LMIC library ("MCCI LoRaWAN LMIC Library")
 
-[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v5.0.0...master) [![Arduino CI](https://img.shields.io/github/actions/workflow/status/mcci-catena/arduino-lmic/ci-arduinocli.yml?branch-master)](https://github.com/mcci-catena/arduino-lmic/actions)
+[![GitHub release](https://img.shields.io/github/release/mcci-catena/arduino-lmic.svg)](https://github.com/mcci-catena/arduino-lmic/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/arduino-lmic/latest.svg)](https://github.com/mcci-catena/arduino-lmic/compare/v5.0.1...master) [![Arduino CI](https://img.shields.io/github/actions/workflow/status/mcci-catena/arduino-lmic/ci-arduinocli.yml?branch-master)](https://github.com/mcci-catena/arduino-lmic/actions)
+<!-- lmic document is v5.0.0, don't forget to update -->
 
 **Contents:**
 
@@ -999,7 +1000,7 @@ function uflt12f(rawUflt12)
 
 ## Release History
 
-- HEAD has the following changes.
+- v5.0.1 has the following changes.
 
   - Work around different behavior for `int32_t` wrap in newer GCC versions. ([#968](https://github.com/mcci-catena/arduino-lmic/issues/968), `v5.0.1-pre1`)
 
@@ -1031,7 +1032,7 @@ function uflt12f(rawUflt12)
   - Fix additional warnings on non-ARM platforms ([#791](https://github.com/mcci-catena/arduino-lmic/issues/791), thanks [@d-a-v](https://github.com/d-a-v)).
   - Allow application to set the value to be used in `DeviceStatusAns` MAC messages ([#576](https://github.com/mcci-catena/arduino-lmic/issues/576) and [#560](https://github.com/mcci-catena/arduino-lmic/issues/560), thanks to [@altishchenko](https://github.com/altishchenko)).
   - Minor adjustments to the compliance sketch ([#800](https://github.com/mcci-catena/arduino-lmic/issues/576)).
-  - Update the LMIC reference manual to `LMIC-v5.0.0.pdf`.
+  - Update the LMIC reference manual to `LMIC-v4.1.0.pdf`.
 
 - v4.0 is a major release; changes are significant enough to be "likely breaking". It includes the following changes.
 
