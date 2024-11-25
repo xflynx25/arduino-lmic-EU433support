@@ -999,6 +999,10 @@ function uflt12f(rawUflt12)
 
 ## Release History
 
+- HEAD has the following changes.
+
+  - Work around different behavior for `int32_t` wrap in newer GCC versions. ([#968](https://github.com/mcci-catena/arduino-lmic/issues/968), `v5.0.1-pre1`)
+
 - v5.0.0 has the following changes.
 
   - Enable device time request by default in config file ([#840](https://github.com/mcci-catena/arduino-lmic/issues/840)).
