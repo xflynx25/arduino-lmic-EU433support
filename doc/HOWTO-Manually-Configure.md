@@ -34,6 +34,8 @@ pins for different parts (like the Semtech evaluation board that has
 `VDD_RF`, `VDD_ANA` and `VDD_FEM`), which can all be connected together.
 Any *GND* pins need to be connected to the Arduino *GND* pin(s).
 
+The SX126x transceivers are able to be physically configured to use a DC-DC buck converter or linear regulator LDO type of voltage regulation. The DC-DC regulator is enabled by wiring an inductor between the `VREG` and `DCC_SW` pins, and if this is the case, it will generally be described in the technical literature for the board. The library selects LDO by default, however DC-DC can be configured as described in [Advanced initialization](HOWTO-Manually-Configure.md#advanced-initialization).
+
 ### SPI
 
 > If you're using a [pre-integrated board](../README.md#pre-integrated-boards), ignore this section.
@@ -90,6 +92,8 @@ connected.
 
 The pins used on the Arduino side should be configured in the pin
 mapping in your sketch, by setting the values of `lmic_pinmap::dio[0]`, `[1]`, and `[2]` (see [below](#pin-mapping)).
+
+The SX126x transceivers differ substantially from the SX127x transceivers in their I/O principle of operation. The modem uses a BUSY control line to indicate whether the transceiver is ready to accept a command from the host controller. The three DIOs (DIO1, DIO2 and DIO3) are all able to be configured as IRQs, however DIO2 and DIO3 can also be used to control an external [RfSwitch](HOWTO-Manually-Configure.md#rxtx) and TCXO respectively. For this reason, the driver used in this library exclusively uses DIO1 for interrupts. In the event a user of the library identifies a board that is not compatible with this arrangement, please create an issue.
 
 ## Reset
 
@@ -227,6 +231,12 @@ public:
   };
 ```
 
+> [!NOTE]
+> Any manually configured board using SX126x transceivers will need
+> to use advanced configuration. At a minimum, `queryBusyPin(void)`
+> will need to be overridden to ensure the host is able to communicate
+> with the radio.
+
 ## HalConfiguration_t methods
 
 - `ostime_t setModuleActive(bool state)` is called by the LMIC to make the module active or to deactivate it (the value of `state` is true to activate).  The implementation must turn power to the module on and otherwise prepare for it to go to work, and must return the number of OS ticks to wait before starting to use the radio.
@@ -238,6 +248,14 @@ public:
 - `bool queryUsingTcxo(void)` shall return `true` if the module uses a TCXO; `false` otherwise.
 
 - `TxPowerPolicy_t getTxPowerPolicy(TxPowerPolicy_t policy, int8_t requestedPower, uint32_t frequency)` allows you to override the LMIC's selection of transmit power. If not provided, the default method forces the LMIC to use PA_BOOST mode. (We chose to do this because we found empirically that the Hope RF module doesn't support RFO, and because legacy LMIC code never used anything except PA_BOOST mode.)
+
+- `queryBusyPin(void)` shall return the host controller pin that is wired to the busy pin of a SX126x family transceiver. This is mandatory for all SX126x transceivers because their communications with the host controller is different than the SX127x family.
+
+- `queryUsingDcdc(void)` shall return true when a SX126x transceiver is wired to use the DC-DC buck converter for voltage regulation. The default (linear regulator LDO) will work in all cases, however where the DC-DC regulator is physically and used in software, improved power consumption is achieved.
+
+- `queryUsingDIO2AsRfSwitch(void)` shall return true when a transceiver is physically configured to switch an external antenna with DIO2. When this configuration is physically enabled and selected in software, the host will allow the radio to control the RfSwitch, generally resulting in better control timing.
+
+- `queryUsingDIO3AsTCXOSwitch(void)` shall return true when a SX126x transceiver is physically configured with DIO3 driving an external temperature controlled crystal oscillator (TXCO).
 
 Caution: the LMIC has no way of knowing whether the mode you return makes sense. Use of 20 dBm mode without limiting duty cycle can over-stress your module. The LMIC currently does not have any code to duty-cycle US transmissions at 20 dBm. If properly limiting transmissions to 400 milliseconds, a 1% duty-cycle means at most one message every 40 seconds. This shouldn't be a problem in practice, but buggy upper level software still might do things more rapidly.
 

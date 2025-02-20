@@ -551,6 +551,9 @@ This library provides several examples.
    transmits temperature and relative humidity using a DHT22 sensor. It's only
    been tested with Feather M0-family products.
 
+- [`ttn-otaa-sx1262.ino`](examples/ttn-otaa-sx1262/ttn-otaa-sx1262.ino) is a version of `ttn-otaa.ino` that demonstrates [Advanced initialization](doc/HOWTO-Manually-Configure.md#advanced-initialization) techniques
+  that will be required for some boards, in particular, any SX126x transceiver that is not pre-integrated.
+
 - [`raw.ino`](examples/raw/raw.ino) shows how to access the radio on a somewhat low level,
    and allows to send raw (non-LoRaWAN) packets between nodes directly.
    This is useful to verify basic connectivity, and when no gateway is
