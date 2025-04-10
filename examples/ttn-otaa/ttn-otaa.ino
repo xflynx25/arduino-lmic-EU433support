@@ -49,22 +49,14 @@
 # define FILLMEIN (#dont edit this, edit the lines that use FILLMEIN)
 #endif
 
-// This EUI must be in little-endian format, so least-significant-byte
-// first. When copying an EUI from ttnctl output, this means to reverse
-// the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
-// 0x70.
-static const u1_t PROGMEM APPEUI[8]={ FILLMEIN };
-void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
+static const u1_t PROGMEM APPEUI[8] = { 0x34, 0x12, 0x06, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 };
+void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8); }
 
-// This should also be in little endian format, see above.
-static const u1_t PROGMEM DEVEUI[8]={ FILLMEIN };
-void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
+static const u1_t PROGMEM DEVEUI[8] = { 0x13, 0x75, 0x24, 0x30, 0x31, 0x0A, 0x61, 0xA8 };
+void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8); }
 
-// This key should be in big endian format (or, since it is not really a
-// number but a block of memory, endianness does not really apply). In
-// practice, a key taken from ttnctl can be copied as-is.
-static const u1_t PROGMEM APPKEY[16] = { FILLMEIN };
-void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
+static const u1_t PROGMEM APPKEY[16] = { 0x1A, 0x2B, 0x3C, 0x4D, 0x5E, 0x6F, 0x78, 0x90, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0 };
+void os_getDevKey (u1_t* buf) { memcpy_P(buf, APPKEY, 16); }
 
 static uint8_t mydata[] = "Hello, world!";
 static osjob_t sendjob;
@@ -72,14 +64,23 @@ static osjob_t sendjob;
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
 const unsigned TX_INTERVAL = 60;
-
-// Pin mapping
+// for the esp
 const lmic_pinmap lmic_pins = {
-    .nss = 6,
+    .nss = 5,
+    .rxtx = LMIC_UNUSED_PIN,
+    .rst = 14,
+    .dio = {26, 33, 32},
+};
+
+/*
+// for the mega , what mani has been using 
+const lmic_pinmap lmic_pins = {
+    .nss = 53,
     .rxtx = LMIC_UNUSED_PIN,
     .rst = 5,
-    .dio = {2, 3, 4},
+    .dio = {7, 9, 11},
 };
+*/
 
 void printHex2(unsigned v) {
     v &= 0xff;
@@ -220,10 +221,27 @@ void do_send(osjob_t* j){
     }
     // Next TX is scheduled after TX_COMPLETE event.
 }
-
 void setup() {
     Serial.begin(9600);
     Serial.println(F("Starting"));
+
+
+    // Add region verification prints
+#ifdef CFG_eu868
+    Serial.println(F("Configured for EU868"));
+#elif defined(CFG_us915)
+    Serial.println(F("Configured for US915"));
+#elif defined(CFG_au915)
+    Serial.println(F("Configured for AU915"));
+#elif defined(CFG_as923)
+    Serial.println(F("Configured for AS923"));
+#elif defined(CFG_kr920)
+    Serial.println(F("Configured for KR920"));
+#elif defined(CFG_in866)
+    Serial.println(F("Configured for IN866"));
+#else
+    Serial.println(F("No region defined!"));
+#endif
 
     #ifdef VCC_ENABLE
     // For Pinoccio Scout boards
@@ -234,6 +252,7 @@ void setup() {
 
     // LMIC init
     os_init();
+    LMIC_setClockError(MAX_CLOCK_ERROR * 10 / 100); // 10% clock error
     // Reset the MAC state. Session and pending data transfers will be discarded.
     LMIC_reset();
 
