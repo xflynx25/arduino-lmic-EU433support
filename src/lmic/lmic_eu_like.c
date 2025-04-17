@@ -274,10 +274,33 @@ void LMICeulike_restoreAdrState(const lmic_saved_adr_state_t *pStateBuffer) {
 
 void LMICeulike_setRx1Freq(void) {
 #if !defined(DISABLE_MCMD_DlChannelReq)
-        uint32_t dlFreq = LMIC.channelDlFreq[LMIC.txChnl];
-        if (dlFreq != 0)
-                LMIC.freq = dlFreq;
-#endif // !DISABLE_MCMD_DlChannelReq
+        if( (LMIC.dn2Freq != 0) && (LMIC.dn2Freq != LMIC.freq) )
+                LMIC.freq = LMIC.dn2Freq;
+#endif
+}
+
+// LMICeulike_setRx1Params - used by EU-like regions to set up for downlink.
+void LMICeulike_setRx1Params(u4_t freq, u1_t dr) {
+    LMIC.freq = freq;
+    
+    u1_t const txdr = LMIC.dndr;
+    s1_t drOffset;
+    s1_t candidateDr;
+
+    if (LMIC.rx1DrOffset <= 5)
+        drOffset = (s1_t) LMIC.rx1DrOffset;
+    else
+        // make a reasonable assumption for unspecified value.
+        drOffset = 5;
+
+    candidateDr = (s1_t) txdr - drOffset;
+    if (candidateDr < LORAWAN_DR0)
+        candidateDr = 0;
+    else if (candidateDr > dr)
+        candidateDr = dr;
+
+    LMIC.dndr = (u1_t) candidateDr;
+    LMIC.rps = dndr2rps(LMIC.dndr);
 }
 
 // Class A txDone handling for FSK.

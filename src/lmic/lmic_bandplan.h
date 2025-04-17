@@ -41,6 +41,8 @@
 # include "lmic_bandplan_au915.h"
 #elif defined(CFG_as923)
 # include "lmic_bandplan_as923.h"
+#elif defined(CFG_eu433)
+# include "lmic_bandplan_eu433.h"
 #elif defined(CFG_kr920)
 # include "lmic_bandplan_kr920.h"
 #elif defined(CFG_in866)
