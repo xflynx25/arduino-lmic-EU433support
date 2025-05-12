@@ -274,12 +274,14 @@ void LMICeulike_restoreAdrState(const lmic_saved_adr_state_t *pStateBuffer) {
 
 void LMICeulike_setRx1Freq(void) {
 #if !defined(DISABLE_MCMD_DlChannelReq)
-        if( (LMIC.dn2Freq != 0) && (LMIC.dn2Freq != LMIC.freq) )
-                LMIC.freq = LMIC.dn2Freq;
-#endif
+        uint32_t dlFreq = LMIC.channelDlFreq[LMIC.txChnl];
+        if (dlFreq != 0)
+                LMIC.freq = dlFreq;
+#endif // !DISABLE_MCMD_DlChannelReq
 }
 
 // LMICeulike_setRx1Params - used by EU-like regions to set up for downlink.
+// introduced by the 433 port ... LOOK THROUGH IF USED 
 void LMICeulike_setRx1Params(u4_t freq, u1_t dr) {
     LMIC.freq = freq;
     

@@ -64,23 +64,40 @@ static osjob_t sendjob;
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
 const unsigned TX_INTERVAL = 60;
-// for the esp
+
+// Select Board and Appropriate Pins
+#define ESP_DEVV 0
+#define ESP_S3 1
+#define MEGA 2
+
+// Set your board type here
+#define BOARD ESP_DEVV
+
+// Define pin mapping based on selected board type at compile time
+#if BOARD == ESP_DEVV
 const lmic_pinmap lmic_pins = {
     .nss = 5,
     .rxtx = LMIC_UNUSED_PIN,
     .rst = 14,
-    .dio = {26, 33, 32},
+    .dio = {26, 33, 32}
 };
-
-/*
-// for the mega , what mani has been using 
+#elif BOARD == ESP_S3
+const lmic_pinmap lmic_pins = {
+    .nss = 10,
+    .rxtx = LMIC_UNUSED_PIN,
+    .rst = 42,//2,
+    .dio = {7,15,16}//{4,5,6}
+};
+#elif BOARD == MEGA
 const lmic_pinmap lmic_pins = {
     .nss = 53,
     .rxtx = LMIC_UNUSED_PIN,
     .rst = 5,
-    .dio = {7, 9, 11},
+    .dio = {7, 9, 11}
 };
-*/
+#else
+#error "Please select a valid board type"
+#endif
 
 void printHex2(unsigned v) {
     v &= 0xff;
@@ -138,6 +155,9 @@ void onEvent (ev_t ev) {
             // Disable link check validation (automatically enabled
             // during join, but because slow data rates change max TX
 	    // size, we don't use it in this example.
+
+            // Seems we don;t need to add adr elimination here
+            //LMIC_setAdrMode(0);
             LMIC_setLinkCheckMode(0);
             break;
         /*
@@ -221,6 +241,7 @@ void do_send(osjob_t* j){
     }
     // Next TX is scheduled after TX_COMPLETE event.
 }
+
 void setup() {
     Serial.begin(9600);
     Serial.println(F("Starting"));
@@ -252,9 +273,12 @@ void setup() {
 
     // LMIC init
     os_init();
-    LMIC_setClockError(MAX_CLOCK_ERROR * 10 / 100); // 10% clock error
     // Reset the MAC state. Session and pending data transfers will be discarded.
     LMIC_reset();
+
+    // Disable ADR explicitly
+    LMIC_setAdrMode(0);
+    //LMIC_setDrTxpow(DR_SF7, 5);
 
     // Start job (sending automatically starts OTAA too)
     do_send(&sendjob);
