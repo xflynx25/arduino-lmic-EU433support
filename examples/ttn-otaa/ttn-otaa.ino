@@ -71,7 +71,7 @@ const unsigned TX_INTERVAL = 60;
 #define MEGA 2
 
 // Set your board type here
-#define BOARD ESP_DEVV
+#define BOARD ESP_S3
 
 // Define pin mapping based on selected board type at compile time
 #if BOARD == ESP_DEVV
@@ -284,6 +284,16 @@ void setup() {
     do_send(&sendjob);
 }
 
+
 void loop() {
+    static unsigned long lastPrintTime = 0; // Tracks the last time a message was printed
+    unsigned long currentTime = millis();  // Get the current time
+
     os_runloop_once();
+
+    // Print a message every 5 seconds
+    if (currentTime - lastPrintTime >= 5000) {
+        Serial.println(F("Loop is running..."));
+        lastPrintTime = currentTime;
+    }
 }

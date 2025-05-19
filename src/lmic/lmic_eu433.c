@@ -346,8 +346,8 @@ ostime_t LMICeu433_nextJoinState(void) {
 void LMICeu433_setRx1Params(void) {
         LMICeulike_setRx1Params(
                 LMIC.freq,
-                EU433_DR_DNW2
-                );
+                LMIC.dndr - LMIC.rx1DrOffset  // Calculate based on TX DR and offset
+        );
 }
 
 //
