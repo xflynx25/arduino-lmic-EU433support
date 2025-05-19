@@ -342,12 +342,15 @@ ostime_t LMICeu433_nextJoinState(void) {
         return LMICeulike_nextJoinState(NUM_DEFAULT_CHANNELS);
 }
 
-// Set the Rx1 window parameters.
 void LMICeu433_setRx1Params(void) {
-        LMICeulike_setRx1Params(
-                LMIC.freq,
-                LMIC.dndr - LMIC.rx1DrOffset  // Calculate based on TX DR and offset
-        );
+    s1_t drOffset = LMIC.rx1DrOffset <= 5 ? LMIC.rx1DrOffset : 5;
+    s1_t candidateDr = (s1_t)LMIC.dndr - drOffset;
+    
+    // EU433 DR range is 0-6 (SF12-SF7)
+    if (candidateDr < EU433_DR_SF12) candidateDr = EU433_DR_SF12;
+    if (candidateDr > EU433_DR_SF7) candidateDr = EU433_DR_SF7;
+
+    LMICeulike_setRx1Params(LMIC.freq, (u1_t)candidateDr);
 }
 
 //
