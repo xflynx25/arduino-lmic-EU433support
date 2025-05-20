@@ -423,18 +423,18 @@ enum _dr_configured_t {
 
 #include "lorabase_eu433.h"
 
-// EU433 uses duty cycling - refer to EU duty cycle regulations
+// per 2.5.3: not implemented
 #define LMIC_ENABLE_TxParamSetupReq	0
 
-enum { DR_DFLTMIN = EU433_DR_SF7 };   // Default minimum datarate
-enum { DR_PAGE = DR_PAGE_EU433 };
+enum { DR_DFLTMIN = EU433_DR_SF7 };
+enum { DR_PAGE = DR_PAGE_EU433 };  // debugging parameter
 
-enum { FREQ_PING = EU433_F2 };  // default ping freq
-enum { DR_PING = EU433_DR_SF9 };       // default ping DR
-enum { FREQ_DNW2 = EU433_F2 };
+enum { FREQ_PING = EU433_F6 };  // default ping freq
+enum { DR_PING = EU433_DR_SF9 };  // default ping DR
+enum { FREQ_DNW2 = EU433_F6 };
 enum { DR_DNW2 = EU433_DR_SF12 };
 enum { CHNL_BCN = 5 };
-enum { FREQ_BCN = EU433_F2 };
+enum { FREQ_BCN = EU433_F6 };
 enum { DR_BCN = EU433_DR_SF9 };
 enum { AIRTIME_BCN = 144384 };  // micros
 enum { LMIC_REGION_EIRP = EU433_LMIC_REGION_EIRP };

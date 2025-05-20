@@ -206,7 +206,7 @@ bit_t LMIC_setupChannel(u1_t chidx, u4_t freq, u2_t drmap, s1_t band) {
 
 u4_t LMICeu433_convFreq(xref2cu1_t ptr) {
         u4_t freq = (os_rlsbf4(ptr - 1) >> 8) * 100;
-        if (freq < EU433_LBT_FREQ_MIN || freq > EU433_LBT_FREQ_MAX)
+        if (freq < EU433_FREQ_MIN || freq > EU433_FREQ_MAX)
                 freq = 0;
         return freq;
 }
@@ -331,8 +331,8 @@ ostime_t LMICeu433_nextTx(ostime_t now) {
 //
 void LMICeu433_setBcnRxParams(void) {
         LMIC.dataLen = 0;
-        LMIC.freq = EU433_FREQ_BCN_DEFAULT;
-        LMIC.rps = setIh(setNocrc(dndr2rps(EU433_DR_BCN), 1), LEN_BCN);
+        LMIC.freq = FREQ_BCN;
+        LMIC.rps = setIh(setNocrc(dndr2rps(DR_BCN), 1), LEN_BCN);
 }
 
 //
