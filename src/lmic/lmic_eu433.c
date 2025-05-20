@@ -343,14 +343,26 @@ ostime_t LMICeu433_nextJoinState(void) {
 }
 
 void LMICeu433_setRx1Params(void) {
-    s1_t drOffset = LMIC.rx1DrOffset <= 5 ? LMIC.rx1DrOffset : 5;
-    s1_t candidateDr = (s1_t)LMIC.dndr - drOffset;
-    
-    // EU433 DR range is 0-6 (SF12-SF7)
-    if (candidateDr < EU433_DR_SF12) candidateDr = EU433_DR_SF12;
-    if (candidateDr > EU433_DR_SF7) candidateDr = EU433_DR_SF7;
+    u1_t const txdr = LMIC.dndr;
+    s1_t drOffset;
+    s1_t candidateDr;
 
-    LMICeulike_setRx1Params(LMIC.freq, (u1_t)candidateDr);
+    LMICeulike_setRx1Freq();
+
+    if (LMIC.rx1DrOffset <= 5)
+        drOffset = (s1_t) LMIC.rx1DrOffset;
+    else
+        // make a reasonable assumption for unspecified value.
+        drOffset = 5;
+
+    candidateDr = (s1_t) txdr - drOffset;
+    if (candidateDr < EU433_DR_SF12)
+        candidateDr = EU433_DR_SF12;
+    else if (candidateDr > EU433_DR_SF7)
+        candidateDr = EU433_DR_SF7;
+
+    LMIC.dndr = (u1_t) candidateDr;
+    LMIC.rps = dndr2rps(LMIC.dndr);
 }
 
 //
