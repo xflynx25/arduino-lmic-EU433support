@@ -90,7 +90,7 @@ enum { EU433_LMIC_REGION_EIRP = 1 };         // region uses EIRP
 
 // Additional Definitions (unused) Compared to EU868
 
-// Noting that we use 1% lorawan congestion-reduction 433 duty cycle, rather than 10% EIRP spec
+// Noting that we use 1% lorawan congestion-reduction 433 duty cycle, rather than 10% regulatory spec
 #define EU433_CONSERVATIVE_DUTY_CYCLE_ENABLED 1
 
 // Based on Table 30/31, payload length documentation
