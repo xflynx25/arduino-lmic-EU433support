@@ -250,6 +250,8 @@ void setup() {
     // Add region verification prints
 #ifdef CFG_eu868
     Serial.println(F("Configured for EU868"));
+#elif defined(CFG_eu433)
+    Serial.println(F("Configured for EU433"));
 #elif defined(CFG_us915)
     Serial.println(F("Configured for US915"));
 #elif defined(CFG_au915)
